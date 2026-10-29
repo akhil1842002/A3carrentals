@@ -66,7 +66,7 @@ export default function About() {
               <span className="subheading">Our Commitment</span>
               <h2>{lp.aboutTitle || 'Premium Vehicles, Effortless Journeys'}</h2>
               <p>
-                {lp.aboutDesc || 'Founded with a mission to bring world-class mobility to discerning drivers and travelers, CarBook offers a meticulously curated fleet of top-tier sedans, rugged SUVs, executive luxury vehicles, and high-performance cars.'}
+                {lp.aboutDesc || 'Founded with a mission to bring world-class mobility to Kaliakkavilai and surrounding regions, A3 Car Rentals offers a meticulously curated fleet of top-tier sedans, rugged SUVs, executive luxury vehicles, and economical family cars.'}
               </p>
               <p>
                 Every vehicle in our fleet undergoes rigorous multi-point mechanical inspection and complete interior 

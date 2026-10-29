@@ -8,28 +8,28 @@ export default function Services() {
   const services = [
     {
       icon: <FaHeart />,
-      title: 'Wedding Ceremony',
-      desc: 'Make your special day truly memorable with our luxury fleet with professional drivers. Red carpet service included.'
+      title: 'Wedding Ceremony Rentals',
+      desc: 'Make your special day memorable with luxury wedding cars across Kaliakkavilai, Marthandam, Kuzhithurai & Kanyakumari. Professional drivers included.'
     },
     {
       icon: <FaCar />,
-      title: 'City Transfer',
-      desc: 'Punctual and comfortable point-to-point transportation throughout the city and suburbs.'
+      title: 'City & Inter-State Transfer',
+      desc: 'Punctual point-to-point transfers and self-drive cars across Kaliakkavilai, Parasala, Marthandam, Nagercoil & Trivandrum.'
     },
     {
       icon: <FaPlane />,
-      title: 'Airport Transfer',
-      desc: 'Reliable airport pickup and drop-off with real-time flight tracking and zero wait time.'
+      title: 'Airport Transfer (TRV)',
+      desc: 'Prompt pickup and drop-off to Trivandrum International Airport (TRV) from Kaliakkavilai with real-time flight tracking.'
     },
     {
       icon: <FaMapMarkerAlt />,
-      title: 'Whole City Tour',
-      desc: 'Explore the entire city with our guided tour packages in premium vehicles.'
+      title: 'Kanyakumari & Kerala Tours',
+      desc: 'Explore Kanyakumari, Trivandrum, Kovalam & Ponmudi with our scenic tour rental packages in premium vehicles.'
     },
     {
       icon: <FaUserTie />,
-      title: 'Car Rentals With Driver',
-      desc: 'Professional licensed drivers with VIP protocol, airport pickups, and executive transport.'
+      title: 'Car Rentals With Acting Driver',
+      desc: 'Rent any car from our Kaliakkavilai hub with experienced, police-verified acting drivers for local and outstation journeys.'
     },
     {
       icon: <FaShieldAlt />,

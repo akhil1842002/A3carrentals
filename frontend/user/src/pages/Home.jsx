@@ -163,13 +163,13 @@ export default function Home() {
               marginBottom: '18px',
               border: '1px solid rgba(249, 109, 0, 0.4)'
             }}>
-              {lp.heroBadge || '🚗 Self-Drive & Chauffeur Car Rentals'}
+              {lp.heroBadge || '🚗 Self-Drive & Chauffeur Car Rentals in Kaliakkavilai'}
             </span>
             <h1 style={{ fontSize: 'clamp(32px, 5.5vw, 56px)', fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: '0 0 18px' }}>
-              {lp.heroTitle || 'Fast & Easy Way To Rent A Car'}
+              {lp.heroTitle || 'Best Car Rental Service in Kaliakkavilai & Marthandam'}
             </h1>
-            <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: '#e2e8f0', lineHeight: 1.6, margin: '0 auto 32px', maxWidth: '700px' }}>
-              {lp.heroSubtitle || 'Explore our verified fleet of luxury sedans, rugged SUVs, and family cars. Sign up or log in to check real-time availability and book your ride seamlessly.'}
+            <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: '#e2e8f0', lineHeight: 1.6, margin: '0 auto 32px', maxWidth: '720px' }}>
+              {lp.heroSubtitle || 'A3 Car Rentals provides verified luxury sedans, SUVs, and budget cars for Self-Drive or with Acting Drivers across Kaliakkavilai, Marthandam, Parasala, Kuzhithurai & Trivandrum. Instant online booking & doorstep delivery.'}
             </p>
 
             {/* Instant Sign Up & Action CTAs */}
