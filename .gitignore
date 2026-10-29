@@ -1,0 +1,32 @@
+# Node Dependencies
+node_modules/
+**/node_modules/
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+.env.local
+.env.*.local
+*.env
+backend/.env
+frontend/user/.env
+frontend/admin/.env
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+
+# Uploads and temporary files
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
