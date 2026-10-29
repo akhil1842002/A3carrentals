@@ -9,7 +9,7 @@ const carSchema = new mongoose.Schema({
   fuelType: { type: String, required: true, default: 'Petrol' },
   seats: { type: Number, required: true },
   luggage: { type: Number, default: 2 },
-  mileage: { type: String, default: '15,000 km' },
+  mileage: { type: String, default: '0 km' },
   horsepower: { type: Number, default: 0 },
   pricePerDay: { type: Number, required: true },
   pricePerWeek: { type: Number, default: 0 },
@@ -17,9 +17,9 @@ const carSchema = new mongoose.Schema({
   securityDeposit: { type: Number, default: 0 },
   mileageLimitPerDay: { type: Number, default: 250 },
   extraKmRate: { type: Number, default: 0.35 },
-  vehicleType: { 
-    type: String, 
-    required: true, 
+  vehicleType: {
+    type: String,
+    required: true,
     default: 'Sedan'
   },
   tyreDetails: {
