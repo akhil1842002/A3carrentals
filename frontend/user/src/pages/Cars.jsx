@@ -4,6 +4,7 @@ import { FiSearch, FiFilter, FiX, FiCheck } from 'react-icons/fi';
 import { getCars } from '../api';
 import CarCard from '../components/CarCard';
 import { useSettings } from '../context/SettingsContext';
+import useSeo from '../hooks/useSeo';
 
 const DEFAULT_BRANDS = ['Ferrari', 'Lamborghini', 'BMW', 'Mercedes-Benz', 'Audi', 'Tesla', 'Toyota', 'Ford', 'Chevrolet', 'Land Rover', 'Porsche', 'Range Rover'];
 const VEHICLE_TYPES = ['Sedan', 'SUV', 'Coupe', 'Pickup', 'Luxury', 'Van'];
@@ -11,6 +12,12 @@ const TRANSMISSIONS = ['Automatic', 'Manual'];
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid'];
 
 export default function Cars() {
+  useSeo({
+    title: 'Browse Available Rental Cars in Kaliakkavilai',
+    description: 'Explore A3 Car Rentals verified fleet — Sedans, SUVs, MUVs & hatchbacks available for self-drive or with acting driver in Kaliakkavilai, Marthandam & Nagercoil. Filter by price, type & fuel.',
+    canonical: 'https://a3carrentals.in/cars',
+    keywords: ['self drive cars Kaliakkavilai', 'SUV rental Marthandam', 'sedan hire Nagercoil', 'diesel car rental Kanyakumari', 'affordable car rent Parasala']
+  });
   const { settings } = useSettings();
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);

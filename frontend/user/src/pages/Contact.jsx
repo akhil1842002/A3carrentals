@@ -4,8 +4,15 @@ import { FiMapPin, FiPhone, FiMail, FiClock } from 'react-icons/fi';
 import { FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa';
 import { getWhatsAppLink } from '../api';
 import { useSettings } from '../context/SettingsContext';
+import useSeo from '../hooks/useSeo';
 
 export default function Contact() {
+  useSeo({
+    title: 'Contact A3 Car Rentals — Kaliakkavilai',
+    description: 'Contact A3 Car Rentals at our hub near Jayamatha Hospital, Opp. Ration Shop, Kaliakkavilai - 629153. Call or WhatsApp +91 73970 98447. Open Mon-Sun 8AM to 10PM.',
+    canonical: 'https://a3carrentals.in/contact',
+    keywords: ['contact A3 Car Rentals', 'car rental contact Kaliakkavilai', 'book car Marthandam phone number', 'A3 car rental WhatsApp', 'car rental enquiry Kaliakkavilai']
+  });
   const { settings } = useSettings();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});

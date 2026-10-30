@@ -17,11 +17,18 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { getWhatsAppLink } from '../api';
+import useSeo from '../hooks/useSeo';
 
 const DEFAULT_MAP_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15791.058512382906!2d77.15638885576467!3d8.326171267354821!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b05ab2e7848b5e1%3A0xbe02000328d9065!2sA3%20Car%20rental!5e0!3m2!1sen!2sin!4v1793281171962!5m2!1sen!2sin';
 const DEFAULT_COMPANY_ADDRESS = 'Near by Jayamatha Hospital, Opp. Ration Shop, Kaliakkavillai, Panamkalai - 629153';
 
 export default function About() {
+  useSeo({
+    title: 'About A3 Car Rentals — Kaliakkavilai, Kanyakumari',
+    description: 'A3 Car Rentals is the leading car rental hub near Jayamatha Hospital, Kaliakkavilai (Panamkalai - 629153). Serving Marthandam, Parasala, Kuzhithurai & Trivandrum since day one. Visit us or call now.',
+    canonical: 'https://a3carrentals.in/about',
+    keywords: ['A3 Car Rental Kaliakkavilai', 'car rental near Jayamatha Hospital', 'Panamkalai car hire', 'Kuzhithurai car rental', 'car rental Parasala', 'cab service Kaliakkavilai']
+  });
   const { isAuthenticated } = useAuth();
   const { settings } = useSettings();
   const lp = settings?.landingPage || {};

@@ -2,8 +2,15 @@ import { Link } from 'react-router-dom';
 import { FaCar, FaUserTie, FaShieldAlt, FaHeadset, FaWhatsapp, FaPlane, FaHeart, FaMapMarkerAlt } from 'react-icons/fa';
 import { getWhatsAppLink } from '../api';
 import { useSettings } from '../context/SettingsContext';
+import useSeo from '../hooks/useSeo';
 
 export default function Services() {
+  useSeo({
+    title: 'Car Rental Services in Kaliakkavilai — Self-Drive, Driver, Airport Transfers',
+    description: 'A3 Car Rentals offers Wedding car hire, Airport transfer to Trivandrum (TRV), Kanyakumari Tours, Acting Driver service, Self-Drive rentals and Corporate packages across Kaliakkavilai, Marthandam & Nagercoil.',
+    canonical: 'https://a3carrentals.in/services',
+    keywords: ['wedding car rental Kaliakkavilai', 'airport transfer Trivandrum from Kaliakkavilai', 'Kanyakumari tour car rental', 'acting driver Marthandam', 'self drive car service Nagercoil']
+  });
   const { settings } = useSettings();
   const services = [
     {

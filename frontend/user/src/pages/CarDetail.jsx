@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDate } from '../utils/format';
 import AuthModal from '../components/AuthModal';
+import useSeo from '../hooks/useSeo';
 
 export default function CarDetail() {
   const { id } = useParams();
@@ -18,6 +19,16 @@ export default function CarDetail() {
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+
+  // Dynamic Per-Car SEO
+  useSeo({
+    title: car ? `Rent ${car.name} (${car.brand} ${car.model}) in Kaliakkavilai — ₹${car.pricePerDay}/day` : 'Car Details — A3 Car Rentals Kaliakkavilai',
+    description: car
+      ? `Book ${car.brand} ${car.model} ${car.year} from A3 Car Rentals, Kaliakkavilai. ${car.seats} seats, ${car.transmission}, ${car.fuelType}. Available for self-drive or with acting driver. Doorstep delivery across Marthandam & Trivandrum.`
+      : 'View car details and book at A3 Car Rentals, Kaliakkavilai.',
+    canonical: `https://a3carrentals.in/cars/${id}`,
+    keywords: car ? [`${car.brand} car rental Kaliakkavilai`, `rent ${car.model} Marthandam`, `${car.vehicleType} hire Kanyakumari`, `${car.fuelType} car self drive Parasala`] : []
+  });
 
   // Booking Form State
   const [withDriver, setWithDriver] = useState(false);

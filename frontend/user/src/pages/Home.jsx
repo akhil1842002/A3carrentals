@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { getLandingReviews, getCars } from '../api';
 import { formatDate } from '../utils/format';
+import useSeo from '../hooks/useSeo';
 
 const DEFAULT_FAQS = [
   {
@@ -42,6 +43,12 @@ const DEFAULT_FAQS = [
 ];
 
 export default function Home() {
+  useSeo({
+    title: 'Best Car Rental Service in Kaliakkavilai & Marthandam',
+    description: 'A3 Car Rentals — Top-rated car rental & self-drive service in Kaliakkavilai, Marthandam, Parasala & Trivandrum. Book verified cars online from ₹1,200/day. Instant confirmation!',
+    canonical: 'https://a3carrentals.in/',
+    keywords: ['car rental Kaliakkavilai', 'self drive cars Marthandam', 'car booking Parasala', 'acting driver Kanyakumari', 'car hire Trivandrum', 'A3 Car Rental']
+  });
   const { isAuthenticated } = useAuth();
   const { settings } = useSettings();
   const lp = settings?.landingPage || {};
