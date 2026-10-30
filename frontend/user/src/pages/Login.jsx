@@ -7,8 +7,15 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { renderBrandName } from '../utils/format';
 import GoogleAuthButton from '../components/GoogleAuthButton';
+import useSeo from '../hooks/useSeo';
 
 export default function Login() {
+  useSeo({
+    title: 'Customer Login — A3 Car Rentals',
+    description: 'Sign in to your A3 Car Rentals account to track bookings, view car availability, and manage self-drive reservations in Kaliakkavilai.',
+    keywords: 'A3 car rentals login, customer sign in, car hire account Kaliakkavilai'
+  });
+
   const { settings } = useSettings();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

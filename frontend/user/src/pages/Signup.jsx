@@ -18,11 +18,17 @@ import {
 import { FaCar } from 'react-icons/fa';
 import { registerUser, verifySignupOtp, resendSignupOtp } from '../api';
 import { useAuth } from '../context/AuthContext';
-import { useSettings } from '../context/SettingsContext';
 import { renderBrandName } from '../utils/format';
 import GoogleAuthButton from '../components/GoogleAuthButton';
+import useSeo from '../hooks/useSeo';
 
 export default function Signup() {
+  useSeo({
+    title: 'Create Account — A3 Car Rentals',
+    description: 'Register with A3 Car Rentals Kaliakkavilai. Fast online self-drive car hire, driver booking, and airport transfer services.',
+    keywords: 'A3 car rentals register, sign up car hire Kaliakkavilai, book self drive car'
+  });
+
   const { settings } = useSettings();
   const [step, setStep] = useState(1); // 1 = Details, 2 = Verify Email OTP
   const [name, setName] = useState('');
