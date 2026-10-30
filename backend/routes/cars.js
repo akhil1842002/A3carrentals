@@ -233,66 +233,156 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create car (admin)
-router.post('/', auth, upload.array('images', 5), async (req, res) => {
-  try {
-    const carData = { ...req.body };
-    if (req.files && req.files.length > 0) {
-      const uploadedImages = [];
-      for (const f of req.files) {
-        const cloudUrl = await uploadToCloudinary(f.path, 'cars');
-        uploadedImages.push(cloudUrl || `/uploads/cars/${f.filename}`);
-      }
-      carData.images = uploadedImages;
-    } else if (carData.images && typeof carData.images === 'string') {
-      try {
-        carData.images = JSON.parse(carData.images);
-      } catch (e) {
-        carData.images = [carData.images];
+// Helper to process car images (multipart files, base64 strings, or URLs)
+async function processCarImages(reqFiles, bodyImages) {
+  const finalImages = [];
+
+  // 1. Handle multipart files (if uploaded via form-data)
+  if (reqFiles && reqFiles.length > 0) {
+    for (const f of reqFiles) {
+      const cloudUrl = await uploadToCloudinary(f.path, 'cars');
+      finalImages.push(cloudUrl || `/uploads/cars/${f.filename}`);
+    }
+  }
+
+  // 2. Handle bodyImages (can be array or JSON string of URLs / Base64 data URLs)
+  let rawImages = bodyImages;
+  if (typeof rawImages === 'string') {
+    try {
+      rawImages = JSON.parse(rawImages);
+    } catch (e) {
+      rawImages = [rawImages];
+    }
+  }
+
+  if (Array.isArray(rawImages)) {
+    for (let i = 0; i < rawImages.length; i++) {
+      const img = rawImages[i];
+      if (!img || typeof img !== 'string') continue;
+
+      if (img.startsWith('data:image/')) {
+        // Base64 data URI uploaded from browser
+        const cloudUrl = await uploadToCloudinary(img, 'cars');
+        if (cloudUrl) {
+          finalImages.push(cloudUrl);
+        } else {
+          // Local fallback: convert base64 to real file in uploads/cars/
+          try {
+            const matches = img.match(/^data:image\/([a-zA-Z0-9.+]+);base64,(.+)$/);
+            if (matches) {
+              const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+              const buffer = Buffer.from(matches[2], 'base64');
+              const filename = `car-${Date.now()}-${i}.${ext}`;
+              const dir = path.join(__dirname, '..', 'uploads', 'cars');
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+              fs.writeFileSync(path.join(dir, filename), buffer);
+              finalImages.push(`/uploads/cars/${filename}`);
+            } else {
+              finalImages.push(img);
+            }
+          } catch (err) {
+            console.error('Failed to save base64 fallback:', err.message);
+            finalImages.push(img);
+          }
+        }
+      } else {
+        // Existing URL (e.g. /images/... or https://res.cloudinary.com/...)
+        finalImages.push(img);
       }
     }
+  }
+
+  return finalImages;
+}
+
+// POST create car (admin)
+router.post('/', auth, upload.array('images', 8), async (req, res) => {
+  try {
+    const carData = { ...req.body };
+
+    // Validation: Duplicate Plate Number Check
+    if (carData.plateNumber && String(carData.plateNumber).trim()) {
+      const cleanPlate = String(carData.plateNumber).trim();
+      const escapedPattern = cleanPlate.replace(/[-\s]/g, '[- ]?');
+      const duplicateCar = await Car.findOne({
+        plateNumber: { $regex: new RegExp(`^${escapedPattern}$`, 'i') }
+      });
+      if (duplicateCar) {
+        return res.status(400).json({
+          message: `Plate Number "${cleanPlate}" is already registered to "${duplicateCar.name}" (${duplicateCar.brand} ${duplicateCar.model}). Duplicate plate numbers are not allowed.`
+        });
+      }
+      carData.plateNumber = cleanPlate.toUpperCase();
+    }
+
+    carData.images = await processCarImages(req.files, carData.images);
+
     if (carData.features && typeof carData.features === 'string') {
-      carData.features = JSON.parse(carData.features);
+      try {
+        carData.features = JSON.parse(carData.features);
+      } catch (e) {}
     }
     if (carData.tyreDetails && typeof carData.tyreDetails === 'string') {
       try {
         carData.tyreDetails = JSON.parse(carData.tyreDetails);
       } catch (e) {}
     }
+
+    // Coerce numeric fields
+    if (carData.pricePerDay !== undefined) carData.pricePerDay = Number(carData.pricePerDay) || 0;
+    if (carData.year !== undefined) carData.year = Number(carData.year) || 2024;
+    if (carData.seats !== undefined) carData.seats = Number(carData.seats) || 5;
+    if (carData.luggage !== undefined) carData.luggage = Number(carData.luggage) || 2;
+
     const car = new Car(carData);
     await car.save();
     res.status(201).json(car);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Car creation error:', error);
+    res.status(400).json({ message: error.message || 'Failed to create vehicle' });
   }
 });
 
 // PUT update car (admin)
-router.put('/:id', auth, upload.array('images', 5), async (req, res) => {
+router.put('/:id', auth, upload.array('images', 8), async (req, res) => {
   try {
     const carData = { ...req.body };
-    if (req.files && req.files.length > 0) {
-      const uploadedImages = [];
-      for (const f of req.files) {
-        const cloudUrl = await uploadToCloudinary(f.path, 'cars');
-        uploadedImages.push(cloudUrl || `/uploads/cars/${f.filename}`);
+
+    // Validation: Duplicate Plate Number Check
+    if (carData.plateNumber && String(carData.plateNumber).trim()) {
+      const cleanPlate = String(carData.plateNumber).trim();
+      const escapedPattern = cleanPlate.replace(/[-\s]/g, '[- ]?');
+      const duplicateCar = await Car.findOne({
+        _id: { $ne: req.params.id },
+        plateNumber: { $regex: new RegExp(`^${escapedPattern}$`, 'i') }
+      });
+      if (duplicateCar) {
+        return res.status(400).json({
+          message: `Plate Number "${cleanPlate}" is already registered to "${duplicateCar.name}" (${duplicateCar.brand} ${duplicateCar.model}). Duplicate plate numbers are not allowed.`
+        });
       }
-      carData.images = uploadedImages;
-    } else if (carData.images && typeof carData.images === 'string') {
-      try {
-        carData.images = JSON.parse(carData.images);
-      } catch (e) {
-        carData.images = [carData.images];
-      }
+      carData.plateNumber = cleanPlate.toUpperCase();
+    }
+
+    if ((req.files && req.files.length > 0) || carData.images) {
+      carData.images = await processCarImages(req.files, carData.images);
     }
     if (carData.features && typeof carData.features === 'string') {
-      carData.features = JSON.parse(carData.features);
+      try {
+        carData.features = JSON.parse(carData.features);
+      } catch (e) {}
     }
     if (carData.tyreDetails && typeof carData.tyreDetails === 'string') {
       try {
         carData.tyreDetails = JSON.parse(carData.tyreDetails);
       } catch (e) {}
     }
+
+    // Coerce numeric fields
+    if (carData.pricePerDay !== undefined) carData.pricePerDay = Number(carData.pricePerDay) || 0;
+    if (carData.year !== undefined) carData.year = Number(carData.year) || 2024;
+    if (carData.seats !== undefined) carData.seats = Number(carData.seats) || 5;
+    if (carData.luggage !== undefined) carData.luggage = Number(carData.luggage) || 2;
 
     // Validation: Cannot change vehicle status while a trip is currently ongoing
     if (carData.status && carData.status !== 'rented') {

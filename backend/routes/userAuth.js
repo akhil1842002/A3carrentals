@@ -14,23 +14,32 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Full name is required' });
     }
     const cleanEmail = (email || '').trim().toLowerCase();
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      return res.status(400).json({ message: 'Valid email address is required' });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      return res.status(400).json({ message: 'Valid email address is required (e.g. name@example.com)' });
     }
     if (!phone || !phone.trim()) {
       return res.status(400).json({ message: 'Mobile number is compulsory' });
     }
     const cleanPhone = phone.trim().replace(/[\s\-\(\)]/g, '');
     if (!/^(\+91|91|0)?[6-9]\d{9}$/.test(cleanPhone)) {
-      return res.status(400).json({ message: 'Please enter a valid 10-digit Indian mobile number' });
+      return res.status(400).json({ message: 'Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9' });
     }
-    if (!password || password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    const standard10Digit = cleanPhone.slice(-10);
+
+    // Check if phone number is already registered to another active/verified account
+    const existingPhoneUser = await User.findOne({
+      phone: { $regex: new RegExp(`${standard10Digit}$`) },
+      email: { $ne: cleanEmail },
+      $or: [{ isEmailVerified: true }, { status: 'active' }]
+    });
+    if (existingPhoneUser) {
+      return res.status(400).json({ message: 'An account with this mobile number already exists. Please log in.' });
     }
 
     const assignedRole = (role === 'driver') ? 'driver' : 'customer';
 
-    // Check if user already exists
+    // Check if user already exists by email
     let existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       if (existingUser.isEmailVerified || existingUser.status === 'active') {
@@ -446,6 +455,15 @@ router.put('/me', userAuth, async (req, res) => {
       }
       if (!/^(\+91|91|0)?[6-9]\d{9}$/.test(cleanPhone)) {
         return res.status(400).json({ message: 'Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9' });
+      }
+      const standard10Digit = cleanPhone.slice(-10);
+      const duplicatePhone = await User.findOne({
+        _id: { $ne: req.user.id },
+        phone: { $regex: new RegExp(`${standard10Digit}$`) },
+        $or: [{ isEmailVerified: true }, { status: 'active' }]
+      });
+      if (duplicatePhone) {
+        return res.status(400).json({ message: 'This mobile number is already linked to another registered account' });
       }
       updates.phone = phone.trim();
     }

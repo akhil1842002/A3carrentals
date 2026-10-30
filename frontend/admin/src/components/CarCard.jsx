@@ -39,6 +39,17 @@ export default function CarCard({
     return { price: car.pricePerDay || 158, unit: '/day' };
   };
 
+  const formatMileage = (val) => {
+    if (!val) return '15 km/l';
+    const clean = String(val).trim();
+    if (clean === '15,000 km' || clean === '15000 km' || clean === '15000' || clean === '15,000') return '15 km/l';
+    if (/^\d+$/.test(clean)) return `${clean} km/l`;
+    if (clean.toLowerCase().endsWith('km') && !clean.toLowerCase().includes('km/l') && !clean.toLowerCase().includes('kmpl')) {
+      return clean.replace(/km/i, 'km/l');
+    }
+    return clean;
+  };
+
   const { price, unit } = getPrice();
   const currentStatus = car.status || 'available';
 
@@ -169,9 +180,9 @@ export default function CarCard({
             <span>{car.fuelType || 'Petrol'}</span>
           </div>
 
-          <div className="meta-item hp-tag" title="Vehicle Mileage">
-            <GiSteeringWheel />
-            <span>{car.mileage ? (car.mileage.includes('km') ? car.mileage : `${car.mileage} km`) : '15,000 km'}</span>
+          <div className="meta-item hp-tag" title="Vehicle Fuel Efficiency / Mileage">
+            <GiSteeringWheel size={11} />
+            <span>{formatMileage(car.mileage)}</span>
           </div>
         </div>
 

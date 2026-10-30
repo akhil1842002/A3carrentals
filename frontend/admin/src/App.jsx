@@ -30,7 +30,7 @@ import {
 
 const DEFAULT_FILTERS = {
   rentalType: 'daily',
-  maxPrice: 180,
+  maxPrice: null,
   brands: [],
   vehicleTypes: [],
   transmissions: [],
@@ -172,7 +172,7 @@ export default function App() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { limit: 1000 };
       if (filters.brands.length) params.brand = filters.brands.join(',');
       if (filters.vehicleTypes.length) params.vehicleType = filters.vehicleTypes.join(',');
       if (filters.transmissions.length) params.transmission = filters.transmissions.join(',');
@@ -203,7 +203,7 @@ export default function App() {
   // Silent 10-second background polling so stats and cars update live without reloading
   const fetchDataSilently = useCallback(async () => {
     try {
-      const params = {};
+      const params = { limit: 1000 };
       if (filters.brands.length) params.brand = filters.brands.join(',');
       if (filters.vehicleTypes.length) params.vehicleType = filters.vehicleTypes.join(',');
       if (filters.transmissions.length) params.transmission = filters.transmissions.join(',');
@@ -296,7 +296,7 @@ export default function App() {
       }
       setCarModalOpen(false);
       setCarToEdit(null);
-      fetchData();
+      await fetchData();
     } catch (err) {
       setConfirmModal({
         isOpen: true,
@@ -308,6 +308,7 @@ export default function App() {
         loading: false,
         onConfirm: () => setConfirmModal(prev => ({ ...prev, isOpen: false }))
       });
+      throw err;
     }
   };
 
@@ -547,7 +548,7 @@ export default function App() {
                     title="Filter by vehicle brand"
                   >
                     <option value="all">All Brands</option>
-                    {['Tesla', 'BMW', 'Toyota', 'Audi', 'Ford', 'Ferrari', 'Lamborghini', 'Land Rover', 'Porsche', 'Mercedes', 'Chevrolet'].map(b => (
+                    {[...new Set([...['Tesla', 'BMW', 'Toyota', 'Audi', 'Ford', 'Mahindra', 'Hyundai', 'Tata', 'Maruti Suzuki', 'Kia'], ...cars.map(c => c.brand).filter(Boolean)])].sort().map(b => (
                       <option key={b} value={b}>{b}</option>
                     ))}
                   </select>

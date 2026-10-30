@@ -12,7 +12,7 @@ const DEFAULT_CAR = {
   vehicleType: 'Sedan',
   seats: 5,
   luggage: 2,
-  mileage: '15,000 km',
+  mileage: '15',
   pricePerDay: 2000,
   plateNumber: 'TN-75-AB-1234',
   status: 'available',
@@ -30,6 +30,8 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [modalToast, setModalToast] = useState({ text: '', type: 'error' });
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   const showModalToast = (text, type = 'error') => {
@@ -103,11 +105,11 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
       setFormData({
         ...DEFAULT_CAR,
         ...carToEdit,
-        mileage: carToEdit.mileage ? carToEdit.mileage.replace(' mi', ' km') : '15,000 km',
+        mileage: carToEdit.mileage ? (carToEdit.mileage.includes('15,000') ? '15 km/l' : carToEdit.mileage) : '15 km/l',
         features: mergedFeatures
       });
 
-      const initialImages = Array.isArray(carToEdit.images) && carToEdit.images.length > 0 
+      const initialImages = Array.isArray(carToEdit.images) && carToEdit.images.length > 0
         ? carToEdit.images.slice(0, 8)
         : [];
       setImages(initialImages);
@@ -126,6 +128,7 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
       });
       setImages([]);
     }
+    setErrors({});
     setIsDragging(false);
   }, [carToEdit, isOpen, masterOptions.features]);
 
@@ -134,6 +137,9 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleFeatureToggle = (index) => {
@@ -183,7 +189,7 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
 
         try {
           window.dispatchEvent(new CustomEvent('fleetMasterUpdated', { detail: { [quickAddModal.category]: res.data.items } }));
-        } catch (e) {}
+        } catch (e) { }
       }
       setQuickAddModal({ isOpen: false, category: '', label: '', value: '' });
     } catch (err) {
@@ -222,6 +228,7 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
       const valid = newImgs.filter(Boolean);
       if (valid.length > 0) {
         setImages(prev => [...prev, ...valid].slice(0, 8));
+        setErrors(prev => ({ ...prev, images: '' }));
       }
     });
   };
@@ -261,17 +268,53 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+
+    if (!formData.name || !formData.name.trim()) {
+      newErrors.name = 'Car Name is required (e.g. Toyota Innova Crysta)';
+    }
+    if (!formData.brand || !formData.brand.trim()) {
+      newErrors.brand = 'Brand is required';
+    }
+    if (!formData.model || !formData.model.trim()) {
+      newErrors.model = 'Model is required (e.g. Innova Crysta ZX)';
+    }
+    if (!formData.year || Number(formData.year) < 1990 || Number(formData.year) > 2035) {
+      newErrors.year = 'Enter a valid manufacture year (1990 - 2035)';
+    }
+    if (!formData.vehicleType || !formData.vehicleType.trim()) {
+      newErrors.vehicleType = 'Vehicle Type is required';
+    }
+    if (!formData.fuelType || !formData.fuelType.trim()) {
+      newErrors.fuelType = 'Fuel Type is required';
+    }
+    if (!formData.pricePerDay || Number(formData.pricePerDay) <= 0) {
+      newErrors.pricePerDay = 'Rental price per day must be greater than 0';
+    }
+    if (!formData.seats || Number(formData.seats) <= 0) {
+      newErrors.seats = 'Valid seat count required (min 1 seat)';
+    }
 
     // Validation: 1 photo min, 8 photos max
     if (!images || images.length === 0) {
-      showModalToast('⚠️ Please upload at least 1 photo for this vehicle (Minimum: 1 photo, Maximum: 8 photos).');
+      newErrors.images = 'Please upload at least 1 photo for this vehicle (Minimum: 1 photo, Maximum: 8 photos).';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      showModalToast('⚠️ Please fill in all required fields highlighted in red below.');
       return;
     }
 
+    setErrors({});
     const payload = {
       ...formData,
+      name: formData.name.trim(),
+      model: formData.model.trim(),
+      plateNumber: (formData.plateNumber || '').trim(),
       images: images.slice(0, 8),
       pricePerDay: Number(formData.pricePerDay),
       pricePerWeek: 0,
@@ -282,16 +325,29 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
       seats: Number(formData.seats) || 5,
       luggage: Number(formData.luggage) || 2
     };
-    onSave(payload);
+    try {
+      setSubmitting(true);
+      await onSave(payload);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || '';
+      if (msg.toLowerCase().includes('plate number')) {
+        setErrors(prev => ({ ...prev, plateNumber: msg }));
+        showModalToast(`⚠️ ${msg}`);
+      } else {
+        showModalToast(`⚠️ ${msg || 'Failed to save vehicle'}`);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="modal-overlay" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div 
-        className="modal-content" 
-        onClick={(e) => e.stopPropagation()} 
-        style={{ 
-          maxWidth: '960px', 
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: '960px',
           width: '100%',
           maxHeight: '90vh',
           borderRadius: '24px',
@@ -303,11 +359,11 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
           position: 'relative'
         }}
       >
-        <div 
-          className="modal-header" 
-          style={{ 
-            borderTopLeftRadius: '24px', 
-            borderTopRightRadius: '24px', 
+        <div
+          className="modal-header"
+          style={{
+            borderTopLeftRadius: '24px',
+            borderTopRightRadius: '24px',
             padding: '22px 32px 18px',
             borderBottom: '1px solid #e2e8f0',
             flexShrink: 0,
@@ -327,7 +383,7 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <form noValidate onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
           <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '26px 32px' }}>
             {modalToast.text && (
               <div style={{
@@ -351,123 +407,131 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
             {/* Row 1: Vehicle Identity */}
             <div className="form-grid-3">
               <div className="form-group">
-                <label>Car Name *</label>
+                <div className="form-label-header">
+                  <label>Car Name <span className="req-star">*</span></label>
+                </div>
                 <input
                   type="text"
                   name="name"
+                  className={errors.name ? 'input-has-error' : ''}
                   placeholder="e.g. Toyota Innova Crysta"
                   value={formData.name || ''}
                   onChange={handleChange}
-                  required
                 />
+                {errors.name && <span className="field-error-text">{errors.name}</span>}
               </div>
 
               {/* Brand with (+) Button */}
               <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ margin: 0 }}>Brand *</label>
+                <div className="form-label-header">
+                  <label>Brand <span className="req-star">*</span></label>
                   <button
                     type="button"
+                    className="quick-add-btn"
                     onClick={() => handleOpenQuickAdd('brands', 'Brand')}
-                    style={{
-                      background: '#fff7ed',
-                      color: '#f96d00',
-                      border: '1px solid #fed7aa',
-                      borderRadius: '5px',
-                      padding: '2px 8px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
                     title="Add new Brand to master list"
                   >
                     <FaPlus size={9} /> Add Brand
                   </button>
                 </div>
-                <select name="brand" value={formData.brand || (masterOptions.brands[0] || 'Toyota')} onChange={handleChange}>
+                <select
+                  name="brand"
+                  className={errors.brand ? 'input-has-error' : ''}
+                  value={formData.brand || (masterOptions.brands[0] || 'Toyota')}
+                  onChange={handleChange}
+                >
                   {(masterOptions.brands || []).map(b => (
                     <option key={b} value={b}>{b}</option>
                   ))}
                 </select>
+                {errors.brand && <span className="field-error-text">{errors.brand}</span>}
               </div>
 
               <div className="form-group">
-                <label>Model *</label>
+                <div className="form-label-header">
+                  <label>Model <span className="req-star">*</span></label>
+                </div>
                 <input
                   type="text"
                   name="model"
+                  className={errors.model ? 'input-has-error' : ''}
                   placeholder="e.g. Innova Crysta ZX"
                   value={formData.model || ''}
                   onChange={handleChange}
-                  required
                 />
+                {errors.model && <span className="field-error-text">{errors.model}</span>}
               </div>
             </div>
 
             {/* Row 2: Registration & Type */}
-            <div className="form-grid-3">
+            <div className="form-grid-3" style={{ marginTop: '16px' }}>
               <div className="form-group">
-                <label>Year</label>
+                <div className="form-label-header">
+                  <label>Year <span className="req-star">*</span></label>
+                </div>
                 <input
                   type="number"
                   name="year"
+                  className={errors.year ? 'input-has-error' : ''}
                   placeholder="2024"
                   value={formData.year || 2024}
                   onChange={handleChange}
                 />
+                {errors.year && <span className="field-error-text">{errors.year}</span>}
               </div>
 
               <div className="form-group">
-                <label>Plate Number</label>
+                <div className="form-label-header">
+                  <label>Plate Number</label>
+                </div>
                 <input
                   type="text"
                   name="plateNumber"
+                  className={errors.plateNumber ? 'input-has-error' : ''}
                   placeholder="e.g. TN-75-AB-1234"
                   value={formData.plateNumber || ''}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const up = e.target.value.toUpperCase();
+                    setFormData(prev => ({ ...prev, plateNumber: up }));
+                    if (errors.plateNumber) setErrors(prev => ({ ...prev, plateNumber: '' }));
+                  }}
                 />
+                {errors.plateNumber && <span className="field-error-text">{errors.plateNumber}</span>}
               </div>
 
               {/* Vehicle Type with (+) Button */}
               <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ margin: 0 }}>Vehicle Type *</label>
+                <div className="form-label-header">
+                  <label>Vehicle Type <span className="req-star">*</span></label>
                   <button
                     type="button"
+                    className="quick-add-btn"
                     onClick={() => handleOpenQuickAdd('vehicleTypes', 'Vehicle Type')}
-                    style={{
-                      background: '#fff7ed',
-                      color: '#f96d00',
-                      border: '1px solid #fed7aa',
-                      borderRadius: '5px',
-                      padding: '2px 8px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
                     title="Add new Vehicle Type to master list"
                   >
                     <FaPlus size={9} /> Add Type
                   </button>
                 </div>
-                <select name="vehicleType" value={formData.vehicleType || (masterOptions.vehicleTypes[0] || 'Sedan')} onChange={handleChange}>
+                <select
+                  name="vehicleType"
+                  className={errors.vehicleType ? 'input-has-error' : ''}
+                  value={formData.vehicleType || (masterOptions.vehicleTypes[0] || 'Sedan')}
+                  onChange={handleChange}
+                >
                   {(masterOptions.vehicleTypes || []).map(vt => (
                     <option key={vt} value={vt}>{vt}</option>
                   ))}
                 </select>
+                {errors.vehicleType && <span className="field-error-text">{errors.vehicleType}</span>}
               </div>
             </div>
 
             {/* Row 3: Transmission, Fuel Type with (+) & Status */}
-            <div className="form-grid-3">
+            <div className="form-grid-3" style={{ marginTop: '16px' }}>
               <div className="form-group">
-                <label>Transmission</label>
+                <div className="form-label-header">
+                  <label>Transmission</label>
+                </div>
                 <select name="transmission" value={formData.transmission || 'Automatic'} onChange={handleChange}>
                   <option value="Automatic">Automatic</option>
                   <option value="Manual">Manual</option>
@@ -476,43 +540,39 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
 
               {/* Fuel Type with (+) Button */}
               <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ margin: 0 }}>Fuel Type *</label>
+                <div className="form-label-header">
+                  <label>Fuel Type <span className="req-star">*</span></label>
                   <button
                     type="button"
+                    className="quick-add-btn"
                     onClick={() => handleOpenQuickAdd('fuelTypes', 'Fuel Type')}
-                    style={{
-                      background: '#fff7ed',
-                      color: '#f96d00',
-                      border: '1px solid #fed7aa',
-                      borderRadius: '5px',
-                      padding: '2px 8px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
                     title="Add new Fuel Type to master list"
                   >
                     <FaPlus size={9} /> Add Fuel
                   </button>
                 </div>
-                <select name="fuelType" value={formData.fuelType || (masterOptions.fuelTypes[0] || 'Petrol')} onChange={handleChange}>
+                <select
+                  name="fuelType"
+                  className={errors.fuelType ? 'input-has-error' : ''}
+                  value={formData.fuelType || (masterOptions.fuelTypes[0] || 'Petrol')}
+                  onChange={handleChange}
+                >
                   {(masterOptions.fuelTypes || []).map(ft => (
                     <option key={ft} value={ft}>{ft}</option>
                   ))}
                 </select>
+                {errors.fuelType && <span className="field-error-text">{errors.fuelType}</span>}
               </div>
 
               <div className="form-group">
-                <label>
-                  Status {carToEdit?.hasOngoingTrip && <span style={{ color: '#d97706', fontSize: '11px', fontWeight: 600 }}>🔒 Locked (Ongoing Trip)</span>}
-                </label>
-                <select 
-                  name="status" 
-                  value={formData.status || 'available'} 
+                <div className="form-label-header">
+                  <label>
+                    Status {carToEdit?.hasOngoingTrip && <span style={{ color: '#d97706', fontSize: '11px', fontWeight: 600 }}>🔒 Locked</span>}
+                  </label>
+                </div>
+                <select
+                  name="status"
+                  value={formData.status || 'available'}
                   onChange={handleChange}
                   disabled={carToEdit?.hasOngoingTrip}
                   style={carToEdit?.hasOngoingTrip ? { background: '#f8fafc', cursor: 'not-allowed', borderColor: '#fde68a' } : {}}
@@ -531,51 +591,78 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
               </div>
             </div>
 
-            {/* Row 4: Pricing & Capacity (Weekly/Monthly/Deposit/Horsepower Removed, Mileage in KM) */}
-            <div className="form-grid-3">
+            {/* Row 4: Pricing & Capacity */}
+            <div className="form-grid-3" style={{ marginTop: '16px' }}>
               <div className="form-group">
-                <label>Price / Day *</label>
+                <div className="form-label-header">
+                  <label>Price / Day (₹) <span className="req-star">*</span></label>
+                </div>
                 <input
                   type="number"
                   name="pricePerDay"
+                  className={errors.pricePerDay ? 'input-has-error' : ''}
                   placeholder="e.g. 2000"
                   value={formData.pricePerDay || ''}
                   onChange={handleChange}
-                  required
                 />
+                {errors.pricePerDay && <span className="field-error-text">{errors.pricePerDay}</span>}
               </div>
 
               <div className="form-group">
-                <label>Mileage (km)</label>
+                <div className="form-label-header">
+                  <label>Mileage (km/l)</label>
+                </div>
                 <input
                   type="text"
                   name="mileage"
-                  placeholder="e.g. 15,000 km or 18 km/l"
+                  placeholder="e.g. 15 km/l"
                   value={formData.mileage || ''}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form-group">
-                <label>Seats</label>
+                <div className="form-label-header">
+                  <label>Seats <span className="req-star">*</span></label>
+                </div>
                 <input
                   type="number"
                   name="seats"
+                  className={errors.seats ? 'input-has-error' : ''}
                   placeholder="5"
                   value={formData.seats || 5}
                   onChange={handleChange}
                 />
+                {errors.seats && <span className="field-error-text">{errors.seats}</span>}
               </div>
             </div>
 
-            {/* 3. MULTI-PHOTO GALLERY (Min 1, Max 8 photos - No Presets, No URL field) */}
+            {/* 3. MULTI-PHOTO GALLERY (Min 1, Max 8 photos) */}
             <div style={{
               background: '#f8fafc',
-              border: '1.5px solid #e2e8f0',
+              border: errors.images ? '1.5px solid #f87171' : '1.5px solid #e2e8f0',
               borderRadius: '16px',
               padding: '20px',
               marginTop: '22px'
             }}>
+              {errors.images && (
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  marginBottom: '14px',
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  color: '#991b1b',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <FaExclamationTriangle size={15} />
+                  <span>{errors.images}</span>
+                </div>
+              )}
               {/* Photo Box Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
@@ -853,7 +940,7 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
                     <input
                       type="checkbox"
                       checked={!!feat.available}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       onClick={(e) => e.stopPropagation()}
                     />
                     <span>{feat.name}</span>
@@ -864,13 +951,35 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
           </div>
 
           <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '16px 32px', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
-            <button type="button" className="btn-modal-cancel" onClick={onClose}>
+            <button type="button" className="btn-modal-cancel" onClick={onClose} disabled={submitting}>
               <FaTimes size={13} />
               <span>Cancel</span>
             </button>
-            <button type="submit" className="btn-modal-submit">
-              <FaCheck size={14} />
-              <span>{carToEdit ? 'Update Vehicle' : 'Create Vehicle'}</span>
+            <button
+              type="submit"
+              className="btn-modal-submit"
+              disabled={submitting}
+              style={submitting ? { opacity: 0.85, cursor: 'wait', display: 'inline-flex', alignItems: 'center', gap: '8px' } : {}}
+            >
+              {submitting ? (
+                <>
+                  <span style={{
+                    display: 'inline-block',
+                    width: '14px',
+                    height: '14px',
+                    border: '2px solid rgba(255,255,255,0.35)',
+                    borderTopColor: '#ffffff',
+                    borderRadius: '50%',
+                    animation: 'spin 0.6s linear infinite'
+                  }} />
+                  <span>{carToEdit ? 'Updating Vehicle...' : 'Creating Vehicle...'}</span>
+                </>
+              ) : (
+                <>
+                  <FaCheck size={14} />
+                  <span>{carToEdit ? 'Update Vehicle' : 'Create Vehicle'}</span>
+                </>
+              )}
             </button>
           </div>
         </form>
