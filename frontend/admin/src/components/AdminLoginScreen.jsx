@@ -5,15 +5,14 @@ import {
   FaEnvelope, 
   FaEye, 
   FaEyeSlash, 
-  FaKey, 
   FaArrowRight, 
   FaCar, 
   FaShieldAlt 
 } from 'react-icons/fa';
 
 export default function AdminLoginScreen({ onLogin, error, loading, settings }) {
-  const [identifier, setIdentifier] = useState('admin@carbook.com');
-  const [password, setPassword] = useState('admin123');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
@@ -23,17 +22,6 @@ export default function AdminLoginScreen({ onLogin, error, loading, settings }) 
       email: identifier.trim(), 
       username: identifier.trim(), 
       password 
-    });
-  };
-
-  const handleUseDemo = (type = 'email') => {
-    const emailVal = type === 'email' ? 'admin@carbook.com' : 'admin';
-    setIdentifier(emailVal);
-    setPassword('admin123');
-    onLogin({ 
-      email: emailVal, 
-      username: emailVal, 
-      password: 'admin123' 
     });
   };
 
@@ -81,7 +69,7 @@ export default function AdminLoginScreen({ onLogin, error, loading, settings }) 
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="admin@carbook.com or admin"
+                placeholder="Enter email or username"
                 required
                 autoComplete="username"
                 className="admin-login-input"
@@ -110,7 +98,7 @@ export default function AdminLoginScreen({ onLogin, error, loading, settings }) 
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter password"
                 required
                 autoComplete="current-password"
                 className="admin-login-input"
@@ -136,49 +124,11 @@ export default function AdminLoginScreen({ onLogin, error, loading, settings }) 
           </button>
         </form>
 
-        {/* Quick Credentials / Demo Helper */}
-        <div className="admin-credentials-helper">
-          <div className="admin-credentials-header">
-            <FaKey style={{ color: '#f96d00' }} />
-            <span>Default Super Admin Credentials</span>
-          </div>
-
-          <div className="admin-cred-row">
-            <span className="cred-label">Email:</span>
-            <code className="cred-code">admin@carbook.com</code>
-          </div>
-          <div className="admin-cred-row">
-            <span className="cred-label">Username:</span>
-            <code className="cred-code">admin</code>
-          </div>
-          <div className="admin-cred-row">
-            <span className="cred-label">Password:</span>
-            <code className="cred-code">admin123</code>
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-            <button
-              type="button"
-              onClick={() => handleUseDemo('email')}
-              className="admin-quick-autofill-btn"
-            >
-              Sign In with Email →
-            </button>
-            <button
-              type="button"
-              onClick={() => handleUseDemo('username')}
-              className="admin-quick-autofill-btn secondary"
-            >
-              Sign In with Username →
-            </button>
-          </div>
-        </div>
-
         {/* Footer info */}
         <div className="admin-login-footer">
           <span>🔒 256-Bit Encrypted Admin Session</span>
           <span>•</span>
-          <span>{settings?.businessName || 'CarBook'} SuperAdmin v2.4</span>
+          <span>{settings?.businessName || 'A3 Car Rentals'} Admin Console</span>
         </div>
       </div>
     </div>

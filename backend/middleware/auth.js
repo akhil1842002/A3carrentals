@@ -16,6 +16,9 @@ const verifyToken = (req) => {
 const adminAuth = (req, res, next) => {
   const decoded = verifyToken(req);
   if (!decoded) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(401).json({ message: 'Authentication required. No token or token invalid.' });
+    }
     // Allow local development / demo access if no token header is attached
     req.admin = { id: 'admin-dev', role: 'superadmin', name: 'CarBook Super Admin' };
     req.user = req.admin;

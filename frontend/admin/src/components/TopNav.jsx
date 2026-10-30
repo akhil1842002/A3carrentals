@@ -106,7 +106,7 @@ export default function TopNav({ activeTab, setActiveTab, onAddCar, adminUser, o
             <div className="profile-menu">
               <div style={{ padding: '8px 12px 10px', borderBottom: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: '13px', fontWeight: '700' }}>{adminUser?.name || 'Administrator'}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{adminUser?.email || 'admin@carbook.com'}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{adminUser?.email || ''}</div>
                 <span className="profile-role-badge">Super Admin</span>
               </div>
 

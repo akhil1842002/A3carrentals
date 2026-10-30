@@ -445,8 +445,8 @@ export default function AdminHeader({
               {(adminUser?.name || 'Admin')[0].toUpperCase()}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
-              <span className="admin-user-name-text">{adminUser?.name || 'Super Admin'}</span>
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{adminUser?.email || 'admin@carbook.com'}</span>
+              <span className="admin-user-name-text">{adminUser?.name || 'Administrator'}</span>
+              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{adminUser?.email || ''}</span>
             </div>
             <button
               type="button"
