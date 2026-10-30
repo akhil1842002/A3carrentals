@@ -6,6 +6,7 @@ const fs = require('fs');
 const Car = require('../models/Car');
 const Booking = require('../models/Booking');
 const auth = require('../middleware/auth');
+const { uploadToCloudinary } = require('../services/cloudinaryService');
 
 // Multer config for car images
 const storage = multer.diskStorage({
@@ -237,7 +238,12 @@ router.post('/', auth, upload.array('images', 5), async (req, res) => {
   try {
     const carData = { ...req.body };
     if (req.files && req.files.length > 0) {
-      carData.images = req.files.map(f => `/uploads/cars/${f.filename}`);
+      const uploadedImages = [];
+      for (const f of req.files) {
+        const cloudUrl = await uploadToCloudinary(f.path, 'cars');
+        uploadedImages.push(cloudUrl || `/uploads/cars/${f.filename}`);
+      }
+      carData.images = uploadedImages;
     } else if (carData.images && typeof carData.images === 'string') {
       try {
         carData.images = JSON.parse(carData.images);
@@ -266,7 +272,12 @@ router.put('/:id', auth, upload.array('images', 5), async (req, res) => {
   try {
     const carData = { ...req.body };
     if (req.files && req.files.length > 0) {
-      carData.images = req.files.map(f => `/uploads/cars/${f.filename}`);
+      const uploadedImages = [];
+      for (const f of req.files) {
+        const cloudUrl = await uploadToCloudinary(f.path, 'cars');
+        uploadedImages.push(cloudUrl || `/uploads/cars/${f.filename}`);
+      }
+      carData.images = uploadedImages;
     } else if (carData.images && typeof carData.images === 'string') {
       try {
         carData.images = JSON.parse(carData.images);

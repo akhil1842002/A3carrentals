@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const Tyre = require('../models/Tyre');
 const auth = require('../middleware/auth');
+const { uploadToCloudinary } = require('../services/cloudinaryService');
 
 // Multer config for tyre images
 const storage = multer.diskStorage({
@@ -66,7 +67,10 @@ router.get('/:id', async (req, res) => {
 router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
     const tyreData = { ...req.body };
-    if (req.file) tyreData.image = `/uploads/tyres/${req.file.filename}`;
+    if (req.file) {
+      const cloudUrl = await uploadToCloudinary(req.file.path, 'tyres');
+      tyreData.image = cloudUrl || `/uploads/tyres/${req.file.filename}`;
+    }
     const tyre = new Tyre(tyreData);
     await tyre.save();
     res.status(201).json(tyre);
@@ -79,7 +83,10 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
 router.put('/:id', auth, upload.single('image'), async (req, res) => {
   try {
     const tyreData = { ...req.body };
-    if (req.file) tyreData.image = `/uploads/tyres/${req.file.filename}`;
+    if (req.file) {
+      const cloudUrl = await uploadToCloudinary(req.file.path, 'tyres');
+      tyreData.image = cloudUrl || `/uploads/tyres/${req.file.filename}`;
+    }
     const tyre = await Tyre.findByIdAndUpdate(req.params.id, tyreData, { new: true, runValidators: true });
     if (!tyre) return res.status(404).json({ message: 'Tyre not found' });
     res.json(tyre);
