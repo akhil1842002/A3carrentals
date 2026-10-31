@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import { 
   getAdminBookings, updateBooking, updateBookingStatus, 
-  getDrivers, assignDriver, recordInspection, getSettings,
+  getDrivers, assignDriver, toggleBookingDriver, recordInspection, getSettings,
   addBookingPayment, addAdditionalCharge, getCars, createAdminBooking
 } from '../api';
 import Pagination from './Pagination';
@@ -425,6 +425,52 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
     } finally {
       setAssignLoading(false);
     }
+  };
+
+  const handleToggleDriver = async (booking, targetWithDriver) => {
+    const isRemoving = targetWithDriver === false || (targetWithDriver === undefined && booking.withDriver);
+    const actionLabel = isRemoving ? 'Switch to Self-Drive' : 'Add Chauffeur / Driver';
+    const driverFeeAmount = Number(booking.driverFee) > 0 
+      ? Number(booking.driverFee) 
+      : ((Number(booking.days) || 1) * (Number(settings?.driverDailyFee) || 999));
+
+    const msg = isRemoving
+      ? `Switch booking #${booking.bookingReference || booking._id.slice(-6)} to Self-Drive? This will remove the driver fee (-${settings?.currencySymbol || '₹'}${driverFeeAmount}) and recalculate the grand total.`
+      : `Add Chauffeur / Driver service to booking #${booking.bookingReference || booking._id.slice(-6)}? This will add the driver fee (+${settings?.currencySymbol || '₹'}${driverFeeAmount}) to the grand total.`;
+
+    setConfirmModal({
+      isOpen: true,
+      title: `${actionLabel}?`,
+      message: msg,
+      confirmText: isRemoving ? 'Yes, Switch to Self-Drive' : 'Yes, Add Driver',
+      variant: isRemoving ? 'warning' : 'primary',
+      loading: false,
+      onConfirm: async () => {
+        try {
+          setConfirmModal(prev => ({ ...prev, loading: true }));
+          const res = await toggleBookingDriver(booking._id, !isRemoving);
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+          if (assignModalBooking) {
+            setAssignModalBooking(null);
+          }
+          await fetchData();
+          if (!isRemoving && res.data) {
+            openAssignModal(res.data);
+          }
+        } catch (err) {
+          setConfirmModal({
+            isOpen: true,
+            title: 'Action Failed',
+            message: err.response?.data?.message || 'Failed to update driver configuration.',
+            confirmText: 'Dismiss',
+            variant: 'danger',
+            isAlert: true,
+            loading: false,
+            onConfirm: () => setConfirmModal(prev => ({ ...prev, isOpen: false }))
+          });
+        }
+      }
+    });
   };
 
   const openInspectModal = (booking) => {
@@ -911,9 +957,33 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
                     </td>
                     <td>
                       <div>
-                        <span className={`rental-type-pill ${b.withDriver ? 'with-driver' : 'self-drive'}`}>
-                          {b.withDriver ? 'With Driver' : 'Self-Drive'}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span className={`rental-type-pill ${b.withDriver ? 'with-driver' : 'self-drive'}`}>
+                            {b.withDriver ? 'With Driver' : 'Self-Drive'}
+                          </span>
+                          {b.status !== 'completed' && b.status !== 'cancelled' && (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleDriver(b, !b.withDriver)}
+                              title={b.withDriver ? "Customer doesn't need driver? Switch to Self-Drive and remove Driver Fee" : "Add Driver service & fee to this booking"}
+                              style={{
+                                fontSize: '10.5px',
+                                fontWeight: 700,
+                                padding: '2px 7px',
+                                borderRadius: '5px',
+                                border: b.withDriver ? '1px solid #fecaca' : '1px solid #bfdbfe',
+                                background: b.withDriver ? '#fef2f2' : '#eff6ff',
+                                color: b.withDriver ? '#b91c1c' : '#1d4ed8',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '3px'
+                              }}
+                            >
+                              {b.withDriver ? 'Remove Driver' : '+ Add Driver'}
+                            </button>
+                          )}
+                        </div>
                         {b.rentalDurationType && b.rentalDurationType !== 'daily' && (
                           <div style={{ marginTop: '4px' }}>
                             <span style={{ fontSize: '10.5px', fontWeight: 800, color: b.rentalDurationType === 'monthly' ? '#047857' : '#0369a1', background: b.rentalDurationType === 'monthly' ? '#ecfdf5' : '#f0f9ff', padding: '1px 6px', borderRadius: '4px', border: `1px solid ${b.rentalDurationType === 'monthly' ? '#a7f3d0' : '#bae6fd'}` }}>
@@ -1149,6 +1219,16 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
                               <FaUserTie /> {b.driver ? 'Change' : 'Assign'}
                             </button>
                           )}
+                          {!b.withDriver && b.status !== 'completed' && (
+                            <button
+                              className="btn-action-sm"
+                              style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 600 }}
+                              title="Customer requested a driver? Add Driver service & fee"
+                              onClick={() => handleToggleDriver(b, true)}
+                            >
+                              <FaUserTie /> + Driver
+                            </button>
+                          )}
 
                           {/* State transitions */}
                           {b.status === 'pending' && (
@@ -1346,17 +1426,41 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
                 </div>
               </div>
 
-              <div className="cam-footer">
-                <button 
-                  type="button" 
-                  className="btn-secondary" 
-                  onClick={() => { setAssignModalBooking(null); setAssignDriverError(''); }}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary" disabled={assignLoading}>
-                  {assignLoading ? 'Assigning...' : 'Confirm Assignment'}
-                </button>
+              <div className="cam-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                {assignModalBooking.withDriver && (
+                  <button
+                    type="button"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '7px 12px',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: '#b91c1c',
+                      background: '#fef2f2',
+                      border: '1.5px solid #fecaca',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => handleToggleDriver(assignModalBooking, false)}
+                    title="Customer doesn't need driver? Switch to Self-Drive and deduct Driver Fee"
+                  >
+                    <FaCar /> Switch to Self-Drive (Remove Driver Fee)
+                  </button>
+                )}
+                <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+                  <button 
+                    type="button" 
+                    className="btn-secondary" 
+                    onClick={() => { setAssignModalBooking(null); setAssignDriverError(''); }}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary" disabled={assignLoading}>
+                    {assignLoading ? 'Assigning...' : 'Confirm Assignment'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

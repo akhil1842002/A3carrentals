@@ -61,7 +61,7 @@ const settingsSchema = new mongoose.Schema({
       ]
     }
   },
-  
+
   // Custom Announcement / Event Offer Poster Banner
   eventOffer: {
     enabled: { type: Boolean, default: true },
@@ -226,7 +226,7 @@ const settingsSchema = new mongoose.Schema({
 }, { timestamps: true, strict: false });
 
 // Ensure only one settings document exists (singleton pattern)
-settingsSchema.statics.getSettings = async function() {
+settingsSchema.statics.getSettings = async function () {
   let settings = await this.findOne();
   if (!settings) {
     settings = await this.create({});

@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { formatDate } from '../utils/format';
 import AuthModal from '../components/AuthModal';
+import DateInput from '../components/DateInput';
 import useSeo from '../hooks/useSeo';
 
 export default function CarDetail() {
@@ -910,8 +911,7 @@ Hello Admin, please verify and confirm this reservation request on WhatsApp.`;
                       </span>
                     )}
                   </div>
-                  <input
-                    type="date"
+                  <DateInput
                     value={pickupDate}
                     min={today}
                     className={bookErrors.pickupDate ? 'input-error' : ''}

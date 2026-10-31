@@ -31,8 +31,10 @@ router.post('/quote', async (req, res) => {
     const dailyRate = car.pricePerDay;
     const subtotal = days * car.pricePerDay;
     const rateTypeApplied = rentalPeriodType || (days >= 30 ? 'monthly' : days >= 7 ? 'weekly' : 'daily');
-    const driverFee = withDriver ? (days * (settings.driverDailyFee || 35)) : 0;
-    const taxRate = (settings.taxRatePercent || 8) / 100;
+    const driverDailyFee = settings.driverDailyFee !== undefined && settings.driverDailyFee !== null ? Number(settings.driverDailyFee) : 999;
+    const driverFee = withDriver ? (days * driverDailyFee) : 0;
+    const taxRatePercent = settings.taxRatePercent !== undefined && settings.taxRatePercent !== null ? Number(settings.taxRatePercent) : 0;
+    const taxRate = taxRatePercent / 100;
     const taxAmount = Math.round((subtotal + driverFee) * taxRate);
     const securityDeposit = 0;
     const totalPrice = subtotal + driverFee + taxAmount;
@@ -54,10 +56,10 @@ router.post('/quote', async (req, res) => {
       subtotal,
       rentalSubtotal: subtotal,
       withDriver: !!withDriver,
-      driverDailyFee: settings.driverDailyFee || 35,
+      driverDailyFee,
       driverFee,
       driverFeeTotal: driverFee,
-      taxRatePercent: settings.taxRatePercent || 8,
+      taxRatePercent,
       taxAmount,
       securityDeposit,
       totalPrice,
@@ -138,8 +140,10 @@ router.post('/', userAuth, async (req, res) => {
     const days = Math.max(1, diffDays <= 0 ? 1 : diffDays);
     const dailyRate = isCustomInquiry ? 0 : car.pricePerDay;
     const subtotal = isCustomInquiry ? 0 : (days * car.pricePerDay);
-    const driverFee = (!isCustomInquiry && withDriver) ? (days * (settings.driverDailyFee || 35)) : 0;
-    const taxRate = (settings.taxRatePercent || 8) / 100;
+    const driverDailyFee = settings.driverDailyFee !== undefined && settings.driverDailyFee !== null ? Number(settings.driverDailyFee) : 999;
+    const driverFee = (!isCustomInquiry && withDriver) ? (days * driverDailyFee) : 0;
+    const taxRatePercent = settings.taxRatePercent !== undefined && settings.taxRatePercent !== null ? Number(settings.taxRatePercent) : 0;
+    const taxRate = taxRatePercent / 100;
     const taxAmount = isCustomInquiry ? 0 : Math.round((subtotal + driverFee) * taxRate);
     const securityDeposit = 0;
     const totalPrice = isCustomInquiry ? 0 : (subtotal + driverFee + taxAmount);
@@ -297,8 +301,10 @@ router.post('/admin', adminAuth, async (req, res) => {
     const days = Math.max(1, Math.ceil((reqEnd - reqStart) / (1000 * 60 * 60 * 24)));
     const dailyRate = car.pricePerDay;
     const subtotal = days * dailyRate;
-    const driverFee = withDriver ? (days * (settings.driverDailyFee || 35)) : 0;
-    const taxRate = (settings.taxRatePercent || 8) / 100;
+    const driverDailyFee = settings.driverDailyFee !== undefined && settings.driverDailyFee !== null ? Number(settings.driverDailyFee) : 999;
+    const driverFee = withDriver ? (days * driverDailyFee) : 0;
+    const taxRatePercent = settings.taxRatePercent !== undefined && settings.taxRatePercent !== null ? Number(settings.taxRatePercent) : 0;
+    const taxRate = taxRatePercent / 100;
     const taxAmount = Math.round((subtotal + driverFee) * taxRate);
     const securityDeposit = 0;
     const totalPrice = subtotal + driverFee + taxAmount;
@@ -593,6 +599,99 @@ router.put('/:id/assign-driver', adminAuth, async (req, res) => {
     }
 
     res.json(await Booking.findById(booking._id).populate('car').populate('driver').populate('user'));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 7b. Admin Toggle Driver (Switch between With Driver and Self-Drive & Recalculate Totals)
+router.put('/:id/toggle-driver', adminAuth, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    if (booking.isLocked || booking.status === 'completed' || booking.status === 'cancelled') {
+      return res.status(400).json({
+        message: 'This booking is completed or cancelled. Driver configuration cannot be modified.'
+      });
+    }
+
+    const targetWithDriver = req.body.withDriver !== undefined
+      ? !!req.body.withDriver
+      : !booking.withDriver;
+
+    const settings = await Settings.getSettings();
+
+    if (!targetWithDriver) {
+      // Switching to Self-Drive: Remove driver, driver fee, and reset status if needed
+      const prevDriverId = booking.driver;
+      booking.withDriver = false;
+      booking.rentalType = 'self_drive';
+      booking.driver = null;
+      booking.driverStatus = 'none';
+      if (booking.status === 'driver_assigned') {
+        booking.status = 'confirmed';
+      }
+      booking.driverFee = 0;
+
+      // Free up driver status if they have no other ongoing trips
+      if (prevDriverId) {
+        const otherTrips = await Booking.countDocuments({
+          _id: { $ne: booking._id },
+          driver: prevDriverId,
+          status: { $in: ['driver_assigned', 'ongoing'] }
+        });
+        if (otherTrips === 0) {
+          await Driver.findByIdAndUpdate(prevDriverId, { status: 'active' });
+        }
+      }
+    } else {
+      // Switching to With Driver: Add driver fee
+      booking.withDriver = true;
+      booking.rentalType = 'with_driver';
+      booking.driverStatus = 'assignment_pending';
+      const driverDailyFee = settings.driverDailyFee !== undefined && settings.driverDailyFee !== null
+        ? Number(settings.driverDailyFee)
+        : 999;
+      booking.driverFee = (Number(booking.days) || 1) * driverDailyFee;
+    }
+
+    // Recalculate tax
+    const taxRatePercent = settings.taxRatePercent !== undefined && settings.taxRatePercent !== null
+      ? Number(settings.taxRatePercent)
+      : 0;
+    const taxRate = taxRatePercent / 100;
+    booking.taxAmount = Math.round(((Number(booking.subtotal) || 0) + (Number(booking.driverFee) || 0)) * taxRate);
+
+    // Recalculate Grand Total
+    const baseCharges = (Number(booking.subtotal) || 0) + (Number(booking.driverFee) || 0) + (Number(booking.taxAmount) || 0);
+    const totalAdditional = (booking.additionalCharges || []).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+    const totalDamages = Array.isArray(booking.damageCharges)
+      ? booking.damageCharges.reduce((s, d) => s + (Number(d.amount) || 0), 0)
+      : (Number(booking.damageCharges) || 0);
+    const extraInsp = Number(booking.inspection?.extraCharges) || 0;
+
+    booking.totalPrice = baseCharges + totalAdditional + totalDamages + extraInsp;
+
+    // Recalculate payment status
+    const totalPaid = (booking.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
+    booking.paidAmount = totalPaid;
+    if (booking.paidAmount >= booking.totalPrice && booking.totalPrice > 0) {
+      booking.paymentStatus = 'fully_paid';
+    } else if (booking.paidAmount > 0) {
+      booking.paymentStatus = 'partial_paid';
+    } else {
+      booking.paymentStatus = 'pending';
+    }
+
+    await booking.save();
+
+    const updated = await Booking.findById(booking._id)
+      .populate('car')
+      .populate('driver')
+      .populate('user');
+
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -136,6 +136,7 @@ export const getAdminBookings = (params) => API.get('/bookings', { params });
 export const updateBooking = (id, data) => API.put(`/bookings/${id}`, data);
 export const updateBookingStatus = (id, data) => API.put(`/bookings/${id}/status`, data);
 export const assignDriver = (id, driverId) => API.put(`/bookings/${id}/assign-driver`, { driverId });
+export const toggleBookingDriver = (id, withDriver) => API.put(`/bookings/${id}/toggle-driver`, { withDriver });
 export const recordInspection = (id, data) => API.put(`/bookings/${id}/inspection`, data);
 export const addBookingPayment = (id, data) => API.post(`/bookings/${id}/payments`, data);
 export const addAdditionalCharge = (id, data) => API.post(`/bookings/${id}/additional-charges`, data);

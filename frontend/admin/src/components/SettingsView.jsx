@@ -42,9 +42,21 @@ export default function SettingsView({ onSettingsUpdated }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let finalValue = value;
+    if (type === 'checkbox') {
+      finalValue = checked;
+    } else if (type === 'number') {
+      if (value === '') {
+        finalValue = '';
+      } else if (/^0\d+/.test(value)) {
+        finalValue = String(Number(value));
+      } else {
+        finalValue = value;
+      }
+    }
     setSettings(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'number' ? parseFloat(value) || 0 : value
+      [name]: finalValue
     }));
   };
 
@@ -53,7 +65,12 @@ export default function SettingsView({ onSettingsUpdated }) {
     setSaving(true);
     setStatusMsg({ type: '', text: '' });
     try {
-      const res = await updateSettings(settings);
+      const payload = {
+        ...settings,
+        taxRatePercent: settings.taxRatePercent === '' ? 0 : Number(settings.taxRatePercent),
+        driverDailyFee: settings.driverDailyFee === '' ? 0 : Number(settings.driverDailyFee)
+      };
+      const res = await updateSettings(payload);
       setSettings(res.data);
       if (onSettingsUpdated) {
         onSettingsUpdated(res.data);
@@ -177,8 +194,9 @@ export default function SettingsView({ onSettingsUpdated }) {
                 step="0.1"
                 min="0"
                 name="taxRatePercent"
-                value={settings.taxRatePercent}
+                value={settings.taxRatePercent ?? ''}
                 onChange={handleChange}
+                onFocus={(e) => e.target.select()}
               />
             </div>
             <div className="settings-field">
@@ -188,8 +206,9 @@ export default function SettingsView({ onSettingsUpdated }) {
                 step="1"
                 min="0"
                 name="driverDailyFee"
-                value={settings.driverDailyFee}
+                value={settings.driverDailyFee ?? ''}
                 onChange={handleChange}
+                onFocus={(e) => e.target.select()}
               />
             </div>
           </div>

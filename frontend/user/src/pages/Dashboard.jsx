@@ -17,6 +17,7 @@ import VehicleDetailModal from '../components/VehicleDetailModal';
 import RentalInvoiceModal from '../components/RentalInvoiceModal';
 import ConfirmModal from '../components/ConfirmModal';
 import Pagination from '../components/Pagination';
+import DateInput from '../components/DateInput';
 import { formatDate } from '../utils/format';
 
 export default function Dashboard() {
@@ -2472,8 +2473,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                       </span>
                     )}
                   </div>
-                  <input
-                    type="date"
+                  <DateInput
                     value={pickupDate}
                     min={today}
                     className={modalBookErrors.pickupDate ? 'input-error' : ''}
@@ -2498,8 +2498,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                         </span>
                       )}
                     </div>
-                    <input
-                      type="date"
+                    <DateInput
                       value={pickupDate}
                       min={today}
                       className={modalBookErrors.pickupDate ? 'input-error' : ''}
@@ -2523,8 +2522,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                         </span>
                       )}
                     </div>
-                    <input
-                      type="date"
+                    <DateInput
                       value={dropoffDate}
                       min={pickupDate || today}
                       className={modalBookErrors.dropoffDate ? 'input-error' : ''}

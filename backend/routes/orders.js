@@ -60,7 +60,8 @@ router.post('/', userAuth, async (req, res) => {
       ? 0
       : (settings.standardShippingFee || 15);
 
-    const taxRate = (settings.taxRatePercent || 8) / 100;
+    const taxRatePercent = settings.taxRatePercent !== undefined && settings.taxRatePercent !== null ? Number(settings.taxRatePercent) : 0;
+    const taxRate = taxRatePercent / 100;
     const taxAmount = Math.round(subtotal * taxRate);
     const totalAmount = subtotal + shippingFee + taxAmount;
 
