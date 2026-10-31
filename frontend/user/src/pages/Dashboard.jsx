@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { 
-  FiCalendar, FiMapPin, FiClock, FiX, FiCheckCircle, 
+import {
+  FiCalendar, FiMapPin, FiClock, FiX, FiCheckCircle,
   FiAlertCircle, FiXCircle, FiSearch, FiEye, FiEyeOff, FiLock, FiKey, FiPhone, FiMail, FiUser, FiTruck,
   FiFileText, FiShoppingBag, FiSave, FiPrinter, FiShield, FiDisc,
   FiArrowRight, FiCheck, FiChevronRight, FiGrid
 } from 'react-icons/fi';
 import { FaCar, FaWhatsapp, FaUserTie, FaStar } from 'react-icons/fa';
-import { 
+import {
   getCars, createBooking, getMyBookings, cancelBooking, getWhatsAppLink,
   getBookingQuote, updateProfile, changePassword, createReview, createTripReview, getMe
 } from '../api';
@@ -25,7 +25,8 @@ export default function Dashboard() {
   const { settings } = useSettings();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawTab = searchParams.get('tab');
-  const activeTab = (!rawTab || rawTab === 'overview' || rawTab === 'tyre_orders') ? 'overview' : rawTab;
+  const normalizedRaw = rawTab === 'rentals' ? 'bookings' : rawTab;
+  const activeTab = (!normalizedRaw || normalizedRaw === 'overview' || normalizedRaw === 'tyre_orders') ? 'overview' : normalizedRaw;
   const [cars, setCars] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +38,8 @@ export default function Dashboard() {
   const [rentalPageSize, setRentalPageSize] = useState(6);
 
   const handleTabChange = (tabName) => {
-    setSearchParams({ tab: tabName });
+    const resolved = tabName === 'rentals' ? 'bookings' : tabName;
+    setSearchParams({ tab: resolved });
   };
 
   // Modals
@@ -121,7 +123,7 @@ export default function Dashboard() {
     variant: 'warning',
     isAlert: false,
     loading: false,
-    onConfirm: () => {}
+    onConfirm: () => { }
   });
 
   useEffect(() => {
@@ -237,11 +239,11 @@ export default function Dashboard() {
         driverComment: hasDriver ? reviewDriverComment.trim() : undefined
       });
 
-      setReviewMsg({ 
-        type: 'success', 
-        text: hasDriver 
-          ? 'Thank you! Your verified reviews for vehicle & driver have been published.' 
-          : 'Thank you! Your verified rental review has been published.' 
+      setReviewMsg({
+        type: 'success',
+        text: hasDriver
+          ? 'Thank you! Your verified reviews for vehicle & driver have been published.'
+          : 'Thank you! Your verified rental review has been published.'
       });
       setTimeout(() => {
         setReviewBooking(null);
@@ -258,7 +260,7 @@ export default function Dashboard() {
     setSelectedCar(car);
     setWithDriver(false);
     setRentalPeriodType('daily');
-    
+
     // Default single rental date to tomorrow for daily plan
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -507,9 +509,9 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
       fetchInitialData();
     } catch (err) {
       console.error('Booking failed:', err);
-      setBookingMsg({ 
-        type: 'error', 
-        text: err.response?.data?.message || 'Booking failed. This car may be booked or under maintenance for the selected dates.' 
+      setBookingMsg({
+        type: 'error',
+        text: err.response?.data?.message || 'Booking failed. This car may be booked or under maintenance for the selected dates.'
       });
     } finally {
       setBookingLoading(false);
@@ -650,7 +652,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
 
   const today = new Date().toISOString().split('T')[0];
   const sym = settings.currencySymbol || '₹';
-  const userPendingForSelectedCar = selectedCar 
+  const userPendingForSelectedCar = selectedCar
     ? bookings.find(b => (b.car?._id === selectedCar._id || b.car === selectedCar._id) && b.status === 'pending')
     : null;
 
@@ -658,667 +660,670 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
     <div className="dashboard-page" style={{ width: '100%', padding: '0' }}>
       <div className="portal-fluid-container" style={{ width: '100%', maxWidth: '100%', margin: 0, padding: 0 }}>
 
-          {loading ? (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <div className="spinner-text">Syncing {settings?.businessName || 'CarBook'} portal &amp; reservations...</div>
-            </div>
-          ) : activeTab === 'overview' ? (
-            (() => {
-              const activeTrips = bookings.filter(b => b.status === 'confirmed' || b.status === 'ongoing' || b.status === 'in_progress');
-              const pendingTrips = bookings.filter(b => b.status === 'pending');
-              const completedTrips = bookings.filter(b => b.status === 'completed');
-              const spotlightBooking = bookings.find(b => ['ongoing', 'confirmed', 'pending'].includes(b.status));
-              const availableCars = cars.filter(c => c.status === 'available' && !c.hasOngoingTrip && c.status !== 'rented');
-              const recommendedCars = availableCars.slice(0, 3);
-              const recentRentals = bookings.slice(0, 3);
-              const conciergeWhatsAppUrl = getWhatsAppLink(
-                settings?.whatsappNumber,
-                `Hello ${settings?.businessName || 'CarBook'} Team, I would like to inquire about car rentals.`
-              );
+        {loading ? (
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <div className="spinner-text">Syncing {settings?.businessName || 'CarBook'} portal &amp; reservations...</div>
+          </div>
+        ) : activeTab === 'overview' ? (
+          (() => {
+            const activeTrips = bookings.filter(b => b.status === 'confirmed' || b.status === 'ongoing' || b.status === 'in_progress');
+            const pendingTrips = bookings.filter(b => b.status === 'pending');
+            const completedTrips = bookings.filter(b => b.status === 'completed');
+            const spotlightBooking = bookings.find(b => ['ongoing', 'confirmed', 'pending'].includes(b.status));
+            const availableCars = cars.filter(c => c.status === 'available' && !c.hasOngoingTrip && c.status !== 'rented');
+            const recommendedCars = availableCars.slice(0, 3);
+            const recentRentals = bookings.slice(0, 3);
+            const conciergeWhatsAppUrl = getWhatsAppLink(
+              settings?.whatsappNumber,
+              `Hello ${settings?.businessName || 'CarBook'} Team, I would like to inquire about car rentals.`
+            );
 
-              return (
-                <div className="user-dash-wrapper">
-                  {/* Hero Welcome Banner */}
-                  <div className="user-dash-hero">
-                    <div className="user-dash-hero-left">
-                      <div className="user-dash-badge">
-                        <span style={{ fontSize: '14px' }}>✨</span> Verified Customer Portal
-                      </div>
-                      <h2 className="user-dash-hero-title">
-                        Welcome back, {user?.name || 'Valued Member'}! 👋
-                      </h2>
-                      <p className="user-dash-hero-desc">
-                        Manage your active road trips, review vehicle invoices, or pick your next ride from our premium fleet with instant WhatsApp dispatch.
-                      </p>
-                      <div className="user-dash-hero-actions">
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={() => handleTabChange('cars')}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.75rem 1.4rem' }}
-                        >
-                          <FaCar /> Browse Available Cars <FiArrowRight />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn"
-                          onClick={() => handleTabChange('bookings')}
-                          style={{
-                            background: 'rgba(255, 255, 255, 0.12)',
-                            color: '#ffffff',
-                            border: '1px solid rgba(255, 255, 255, 0.25)',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '0.75rem 1.4rem'
-                          }}
-                        >
-                          <FiCalendar /> My Rentals ({bookings.length})
-                        </button>
-                        <a
-                          href={conciergeWhatsAppUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn"
-                          style={{
-                            background: '#25D366',
-                            color: '#ffffff',
-                            border: 'none',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '0.75rem 1.4rem',
-                            fontWeight: 600
-                          }}
-                        >
-                          <FaWhatsapp size={17} /> WhatsApp Concierge
-                        </a>
-                      </div>
+            return (
+              <div className="user-dash-wrapper">
+                {/* Hero Welcome Banner */}
+                <div className="user-dash-hero">
+                  <div className="user-dash-hero-left">
+                    <div className="user-dash-badge">
+                      <span style={{ fontSize: '14px' }}>✨</span> Verified Customer Portal
                     </div>
-
-                    <div className="user-dash-hero-right">
-                      <div className="user-dash-profile-card">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                          <div style={{
-                            width: '44px',
-                            height: '44px',
-                            borderRadius: '12px',
-                            background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
-                            color: '#fff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontWeight: 800,
-                            fontSize: '1.1rem'
-                          }}>
-                            {user?.name ? user.name.slice(0, 2).toUpperCase() : 'CB'}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
-                              {user?.name || 'Customer Account'}
-                            </div>
-                            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                              {user?.phone || user?.email || 'Registered Customer'}
-                            </div>
-                          </div>
-                        </div>
-                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>Profile &amp; Addresses</span>
-                          <button
-                            type="button"
-                            onClick={() => handleTabChange('profile')}
-                            style={{
-                              background: 'transparent',
-                              border: 'none',
-                              color: '#38bdf8',
-                              fontSize: '0.8rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              padding: 0
-                            }}
-                          >
-                            Edit Profile <FiChevronRight />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 4 KPI Metric Cards */}
-                  <div className="user-dash-stats-grid">
-                    <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
-                      <div className="user-dash-stat-icon-wrap" style={{ background: '#eff6ff', color: '#2563eb' }}>
-                        <FaCar />
-                      </div>
-                      <div className="user-dash-stat-info">
-                        <div className="user-dash-stat-value">{activeTrips.length}</div>
-                        <div className="user-dash-stat-label">Active Trips</div>
-                        <div className="user-dash-stat-subtext">Confirmed or in progress</div>
-                      </div>
-                    </div>
-
-                    <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
-                      <div className="user-dash-stat-icon-wrap" style={{ background: '#fffbeb', color: '#d97706' }}>
-                        <FiClock />
-                      </div>
-                      <div className="user-dash-stat-info">
-                        <div className="user-dash-stat-value">{pendingTrips.length}</div>
-                        <div className="user-dash-stat-label">Pending Requests</div>
-                        <div className="user-dash-stat-subtext">Awaiting admin review</div>
-                      </div>
-                    </div>
-
-                    <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
-                      <div className="user-dash-stat-icon-wrap" style={{ background: '#ecfdf5', color: '#059669' }}>
-                        <FiCheckCircle />
-                      </div>
-                      <div className="user-dash-stat-info">
-                        <div className="user-dash-stat-value">{completedTrips.length}</div>
-                        <div className="user-dash-stat-label">Completed Trips</div>
-                        <div className="user-dash-stat-subtext">Past successful journeys</div>
-                      </div>
-                    </div>
-
-                    <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
-                      <div className="user-dash-stat-icon-wrap" style={{ background: '#f5f3ff', color: '#7c3aed' }}>
-                        <FiCalendar />
-                      </div>
-                      <div className="user-dash-stat-info">
-                        <div className="user-dash-stat-value">{bookings.length}</div>
-                        <div className="user-dash-stat-label">Total Reservations</div>
-                        <div className="user-dash-stat-subtext">Lifetime carbook rentals</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Spotlight Card: Ongoing or Pending Trip vs Quick Start */}
-                  {spotlightBooking ? (
-                    <div
-                      className="user-dash-spotlight-card"
-                      style={{
-                        borderLeftColor: spotlightBooking.status === 'pending' ? '#f59e0b' : '#2563eb'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: '280px' }}>
-                        <img
-                          src={spotlightBooking.car?.images?.[0] || '/images/car-1.jpg'}
-                          alt={spotlightBooking.car?.name || 'Vehicle'}
-                          style={{
-                            width: '120px',
-                            height: '80px',
-                            objectFit: 'cover',
-                            borderRadius: '10px',
-                            border: '1px solid #e2e8f0'
-                          }}
-                        />
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                            <span style={{
-                              display: 'inline-block',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.72rem',
-                              fontWeight: 700,
-                              textTransform: 'uppercase',
-                              background: spotlightBooking.status === 'pending' ? '#fef3c7' : '#dbeafe',
-                              color: spotlightBooking.status === 'pending' ? '#b45309' : '#1d4ed8'
-                            }}>
-                              {spotlightBooking.status === 'pending' ? 'Pending Approval' : 'Active / Confirmed Trip'}
-                            </span>
-                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                              Plan: {spotlightBooking.rentalDurationType ? (spotlightBooking.rentalDurationType.charAt(0).toUpperCase() + spotlightBooking.rentalDurationType.slice(1)) : 'Daily'}
-                            </span>
-                          </div>
-                          <h4 style={{ margin: '0 0 4px 0', fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                            {spotlightBooking.car?.brand} {spotlightBooking.car?.name}
-                          </h4>
-                          <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span>📅 Pick-up: <strong>{formatDate(spotlightBooking.pickupDate || spotlightBooking.startDate)}</strong></span>
-                            <span>➔</span>
-                            <span>Drop-off: <strong>{formatDate(spotlightBooking.dropoffDate || spotlightBooking.returnDate || spotlightBooking.endDate)}</strong></span>
-                            <span>•</span>
-                            <span>{spotlightBooking.withDriver ? 'Chauffeur Driven' : 'Self-Drive'}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <button
-                          type="button"
-                          className="user-dash-btn-secondary"
-                          onClick={() => handleTabChange('bookings')}
-                        >
-                          <FiFileText size={15} /> View Rental Details
-                        </button>
-                        <a
-                          href={getWhatsAppLink(
-                            settings?.whatsappNumber,
-                            `Hi, I have a question regarding my reservation #${(spotlightBooking.bookingCode || spotlightBooking._id).slice(-8).toUpperCase()} for ${spotlightBooking.car?.name}.`
-                          )}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="user-dash-btn-whatsapp"
-                        >
-                          <FaWhatsapp size={16} /> WhatsApp Support
-                        </a>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{
-                      background: 'linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%)',
-                      border: '1.5px dashed #cbd5e1',
-                      borderRadius: '16px',
-                      padding: '24px 28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      flexWrap: 'wrap',
-                      gap: '20px'
-                    }}>
-                      <div>
-                        <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
-                          Ready for your next journey?
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.88rem', color: '#64748b' }}>
-                          Choose from our verified fleet with zero deposit hassles, clean sanitized interiors, and instant delivery.
-                        </p>
-                      </div>
+                    <h2 className="user-dash-hero-title">
+                      Welcome back, {user?.name || 'Valued Member'}! 👋
+                    </h2>
+                    <p className="user-dash-hero-desc">
+                      Manage your active road trips, review vehicle invoices, or pick your next ride from our premium fleet with instant WhatsApp dispatch.
+                    </p>
+                    <div className="user-dash-hero-actions">
                       <button
                         type="button"
-                        className="user-dash-btn-primary"
+                        className="btn btn-primary"
                         onClick={() => handleTabChange('cars')}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.75rem 1.4rem' }}
                       >
-                        Explore Vehicle Fleet <FiArrowRight />
+                        <FaCar /> Browse Available Cars <FiArrowRight />
                       </button>
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => handleTabChange('bookings')}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.12)',
+                          color: '#ffffff',
+                          border: '1px solid rgba(255, 255, 255, 0.25)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '0.75rem 1.4rem'
+                        }}
+                      >
+                        <FiCalendar /> My Rentals ({bookings.length})
+                      </button>
+                      <a
+                        href={conciergeWhatsAppUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn"
+                        style={{
+                          background: '#25D366',
+                          color: '#ffffff',
+                          border: 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '0.75rem 1.4rem',
+                          fontWeight: 600
+                        }}
+                      >
+                        <FaWhatsapp size={17} /> WhatsApp Concierge
+                      </a>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Recommended Vehicles Section */}
-                  <div>
-                    <div className="user-dash-section-header">
-                      <h3 className="user-dash-section-title">
-                        <FaCar style={{ color: '#2563eb' }} /> Recommended Vehicles
+                  <div className="user-dash-hero-right">
+                    <div className="user-dash-profile-card">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <div style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '12px',
+                          background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
+                          color: '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: '1.1rem'
+                        }}>
+                          {user?.name ? user.name.slice(0, 2).toUpperCase() : 'CB'}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>
+                            {user?.name || 'Customer Account'}
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                            {user?.phone || user?.email || 'Registered Customer'}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>Profile &amp; Addresses</span>
+                        <button
+                          type="button"
+                          onClick={() => handleTabChange('profile')}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#38bdf8',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: 0
+                          }}
+                        >
+                          Edit Profile <FiChevronRight />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4 KPI Metric Cards */}
+                <div className="user-dash-stats-grid">
+                  <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
+                    <div className="user-dash-stat-icon-wrap" style={{ background: '#eff6ff', color: '#2563eb' }}>
+                      <FaCar />
+                    </div>
+                    <div className="user-dash-stat-info">
+                      <div className="user-dash-stat-value">{activeTrips.length}</div>
+                      <div className="user-dash-stat-label">Active Trips</div>
+                      <div className="user-dash-stat-subtext">Confirmed or in progress</div>
+                    </div>
+                  </div>
+
+                  <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
+                    <div className="user-dash-stat-icon-wrap" style={{ background: '#fffbeb', color: '#d97706' }}>
+                      <FiClock />
+                    </div>
+                    <div className="user-dash-stat-info">
+                      <div className="user-dash-stat-value">{pendingTrips.length}</div>
+                      <div className="user-dash-stat-label">Pending Requests</div>
+                      <div className="user-dash-stat-subtext">Awaiting admin review</div>
+                    </div>
+                  </div>
+
+                  <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
+                    <div className="user-dash-stat-icon-wrap" style={{ background: '#ecfdf5', color: '#059669' }}>
+                      <FiCheckCircle />
+                    </div>
+                    <div className="user-dash-stat-info">
+                      <div className="user-dash-stat-value">{completedTrips.length}</div>
+                      <div className="user-dash-stat-label">Completed Trips</div>
+                      <div className="user-dash-stat-subtext">Past successful journeys</div>
+                    </div>
+                  </div>
+
+                  <div className="user-dash-stat-card" onClick={() => handleTabChange('bookings')}>
+                    <div className="user-dash-stat-icon-wrap" style={{ background: '#f5f3ff', color: '#7c3aed' }}>
+                      <FiCalendar />
+                    </div>
+                    <div className="user-dash-stat-info">
+                      <div className="user-dash-stat-value">{bookings.length}</div>
+                      <div className="user-dash-stat-label">Total Reservations</div>
+                      <div className="user-dash-stat-subtext">Lifetime carbook rentals</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Spotlight Card: Ongoing or Pending Trip vs Quick Start */}
+                {spotlightBooking ? (
+                  <div
+                    className="user-dash-spotlight-card"
+                    style={{
+                      borderLeftColor: spotlightBooking.status === 'pending' ? '#f59e0b' : '#2563eb'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: '280px' }}>
+                      <img
+                        src={spotlightBooking.car?.images?.[0] || '/images/car-1.jpg'}
+                        alt={spotlightBooking.car?.name || 'Vehicle'}
+                        style={{
+                          width: '120px',
+                          height: '80px',
+                          objectFit: 'cover',
+                          borderRadius: '10px',
+                          border: '1px solid #e2e8f0'
+                        }}
+                      />
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            background: spotlightBooking.status === 'pending' ? '#fef3c7' : '#dbeafe',
+                            color: spotlightBooking.status === 'pending' ? '#b45309' : '#1d4ed8'
+                          }}>
+                            {spotlightBooking.status === 'pending' ? 'Pending Approval' : 'Active / Confirmed Trip'}
+                          </span>
+                          <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                            Plan: {spotlightBooking.rentalDurationType ? (spotlightBooking.rentalDurationType.charAt(0).toUpperCase() + spotlightBooking.rentalDurationType.slice(1)) : 'Daily'}
+                          </span>
+                        </div>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+                          {spotlightBooking.car?.brand} {spotlightBooking.car?.name}
+                        </h4>
+                        <div style={{ fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span>📅 Pick-up: <strong>{formatDate(spotlightBooking.pickupDate || spotlightBooking.startDate)}</strong></span>
+                          <span>➔</span>
+                          <span>Drop-off: <strong>{formatDate(spotlightBooking.dropoffDate || spotlightBooking.returnDate || spotlightBooking.endDate)}</strong></span>
+                          <span>•</span>
+                          <span>{spotlightBooking.withDriver ? 'Chauffeur Driven' : 'Self-Drive'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="user-dash-btn-secondary"
+                        onClick={() => handleTabChange('bookings')}
+                      >
+                        <FiFileText size={15} /> View Rental Details
+                      </button>
+                      <a
+                        href={getWhatsAppLink(
+                          settings?.whatsappNumber,
+                          `Hi, I have a question regarding my reservation #${(spotlightBooking.bookingCode || spotlightBooking._id).slice(-8).toUpperCase()} for ${spotlightBooking.car?.name}.`
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="user-dash-btn-whatsapp"
+                      >
+                        <FaWhatsapp size={16} /> WhatsApp Support
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%)',
+                    border: '1.5px dashed #cbd5e1',
+                    borderRadius: '16px',
+                    padding: '24px 28px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '20px'
+                  }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
+                        Ready for your next journey?
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '0.88rem', color: '#64748b' }}>
+                        Choose from our verified fleet with zero deposit hassles, clean sanitized interiors, and instant delivery.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="user-dash-btn-primary"
+                      onClick={() => handleTabChange('cars')}
+                    >
+                      Explore Vehicle Fleet <FiArrowRight />
+                    </button>
+                  </div>
+                )}
+
+                {/* Recommended Vehicles Section */}
+                <div>
+                  <div className="user-dash-section-header">
+                    <h3 className="user-dash-section-title">
+                      <FaCar style={{ color: '#2563eb' }} /> Recommended Vehicles
+                    </h3>
+                    <button
+                      type="button"
+                      className="user-dash-section-link"
+                      onClick={() => handleTabChange('cars')}
+                    >
+                      View Full Fleet ({cars.length}) <FiArrowRight />
+                    </button>
+                  </div>
+
+                  <div className="dash-cars-grid">
+                    {recommendedCars.map(car => {
+                      const image = car.images?.[0] || '/images/car-1.jpg';
+                      return (
+                        <div key={car._id} className="dash-car-card">
+                          <div className="dash-car-card-top">
+                            <div className="dash-car-card-title-box">
+                              <h3
+                                className="dash-car-title"
+                                onClick={() => openDetailModal(car)}
+                                title={`View ${car.name} specifications`}
+                              >
+                                {car.name}
+                              </h3>
+                            </div>
+                            <span className="dash-car-type-badge">{car.vehicleType || 'Sedan'}</span>
+                          </div>
+
+                          <div className="dash-car-subhead-row">
+                            <div className="dash-car-subhead">
+                              <span>{car.brand}</span>
+                              <span>•</span>
+                              <span>{car.year || 2024}</span>
+                              <span style={{ margin: '0 4px', color: '#cbd5e1' }}>•</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: '#f59e0b', fontWeight: 700 }}>
+                                <FaStar size={11} /> {car.rating ? Number(car.rating).toFixed(1) : '5.0'}
+                              </span>
+                            </div>
+                            <span className="dash-car-status-pill available">
+                              <span className="status-indicator-dot available"></span>
+                              Available
+                            </span>
+                          </div>
+
+                          <div
+                            className="dash-car-img-wrapper"
+                            onClick={() => openDetailModal(car)}
+                            title="Click to view detailed vehicle specifications & customer reviews"
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <img
+                              src={image}
+                              alt={car.name}
+                              className="dash-car-img-elem"
+                              loading="lazy"
+                              onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                            />
+                            <div className="dash-img-hover-overlay">
+                              <span className="dash-hover-pill"><FiEye /> Specs &amp; Reviews</span>
+                            </div>
+                          </div>
+
+                          <div className="dash-car-specs-grid">
+                            <div className="dash-spec-item" title="Seating Capacity">
+                              <span>{car.seats || 5} Seats</span>
+                            </div>
+                            <div className="dash-spec-item" title="Transmission">
+                              <span>{car.transmission || 'Automatic'}</span>
+                            </div>
+                            <div className="dash-spec-item" title="Fuel Type">
+                              <span>{car.fuelType || 'Petrol'}</span>
+                            </div>
+                            <div className="dash-spec-item" title="Mileage Policy">
+                              <span>{car.mileage ? car.mileage.replace(/mi/gi, 'km') : 'Unlimited'}</span>
+                            </div>
+                          </div>
+
+                          <div className="dash-car-card-bottom">
+                            <div className="dash-car-price-row">
+                              <div className="dash-car-price-box">
+                                <span className="dash-car-price-num">{sym}{car.pricePerDay || 0}</span>
+                                <span className="dash-car-price-unit">/day</span>
+                              </div>
+                              <span className="dash-car-rate-tag">
+                                Verified Fleet
+                              </span>
+                            </div>
+                            <div className="dash-car-card-actions">
+                              <button
+                                type="button"
+                                className="dash-view-specs-btn"
+                                onClick={() => openDetailModal(car)}
+                                title="View Full Specifications & Customer Reviews"
+                              >
+                                <FiEye size={13} /> Specs &amp; Reviews
+                              </button>
+                              <button
+                                type="button"
+                                className="dash-whatsapp-book-btn"
+                                onClick={() => openBookingModal(car)}
+                                title="Book via WhatsApp or Online Reservation"
+                              >
+                                <FaWhatsapp size={15} /> Book Now
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Customer Assurance Perks Grid */}
+                <div className="user-dash-perks-grid">
+                  <div className="user-dash-perk-card">
+                    <div style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '12px',
+                      background: '#eff6ff',
+                      color: '#2563eb',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.25rem',
+                      flexShrink: 0
+                    }}>
+                      <FiShield />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                        100% Insured Fleet
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
+                        Comprehensive damage coverage with 24/7 emergency roadside towing &amp; assistance across all routes.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="user-dash-perk-card">
+                    <div style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '12px',
+                      background: '#f0fdf4',
+                      color: '#16a34a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.25rem',
+                      flexShrink: 0
+                    }}>
+                      <FaWhatsapp />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                        Instant WhatsApp Dispatch
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
+                        Quick document approval and seamless delivery coordination directly via WhatsApp support.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="user-dash-perk-card">
+                    <div style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '12px',
+                      background: '#faf5ff',
+                      color: '#9333ea',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.25rem',
+                      flexShrink: 0
+                    }}>
+                      <FaUserTie />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                        Self-Drive &amp; Chauffeur
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
+                        Choose between personal self-drive freedom or verified professional chauffeurs for city and outstation trips.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity Section if bookings exist */}
+                {recentRentals.length > 0 && (
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '22px 24px' }}>
+                    <div className="user-dash-section-header" style={{ marginBottom: '14px' }}>
+                      <h3 className="user-dash-section-title" style={{ fontSize: '1.15rem' }}>
+                        <FiClock style={{ color: '#2563eb' }} /> Recent Rental Activity
                       </h3>
                       <button
                         type="button"
                         className="user-dash-section-link"
-                        onClick={() => handleTabChange('cars')}
+                        onClick={() => handleTabChange('bookings')}
                       >
-                        View Full Fleet ({cars.length}) <FiArrowRight />
+                        View All ({bookings.length}) <FiArrowRight />
                       </button>
                     </div>
 
-                    <div className="dash-cars-grid">
-                      {recommendedCars.map(car => {
-                        const image = car.images?.[0] || '/images/car-1.jpg';
-                        return (
-                          <div key={car._id} className="dash-car-card">
-                            <div className="dash-car-card-top">
-                              <div className="dash-car-card-title-box">
-                                <h3
-                                  className="dash-car-title"
-                                  onClick={() => openDetailModal(car)}
-                                  title={`View ${car.name} specifications`}
-                                >
-                                  {car.name}
-                                </h3>
-                              </div>
-                              <span className="dash-car-type-badge">{car.vehicleType || 'Sedan'}</span>
-                            </div>
-
-                            <div className="dash-car-subhead-row">
-                              <div className="dash-car-subhead">
-                                <span>{car.brand}</span>
-                                <span>•</span>
-                                <span>{car.year || 2024}</span>
-                                <span style={{ margin: '0 4px', color: '#cbd5e1' }}>•</span>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: '#f59e0b', fontWeight: 700 }}>
-                                  <FaStar size={11} /> {car.rating ? Number(car.rating).toFixed(1) : '5.0'}
-                                </span>
-                              </div>
-                              <span className="dash-car-status-pill available">
-                                <span className="status-indicator-dot available"></span>
-                                Available
-                              </span>
-                            </div>
-
-                            <div
-                              className="dash-car-img-wrapper"
-                              onClick={() => openDetailModal(car)}
-                              title="Click to view detailed vehicle specifications & customer reviews"
-                              style={{ cursor: 'pointer' }}
-                            >
-                              <img
-                                src={image}
-                                alt={car.name}
-                                className="dash-car-img-elem"
-                                loading="lazy"
-                                onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
-                              />
-                              <div className="dash-img-hover-overlay">
-                                <span className="dash-hover-pill"><FiEye /> Specs &amp; Reviews</span>
-                              </div>
-                            </div>
-
-                            <div className="dash-car-specs-grid">
-                              <div className="dash-spec-item" title="Seating Capacity">
-                                <span>{car.seats || 5} Seats</span>
-                              </div>
-                              <div className="dash-spec-item" title="Transmission">
-                                <span>{car.transmission || 'Automatic'}</span>
-                              </div>
-                              <div className="dash-spec-item" title="Fuel Type">
-                                <span>{car.fuelType || 'Petrol'}</span>
-                              </div>
-                              <div className="dash-spec-item" title="Mileage Policy">
-                                <span>{car.mileage ? car.mileage.replace(/mi/gi, 'km') : 'Unlimited'}</span>
-                              </div>
-                            </div>
-
-                            <div className="dash-car-card-bottom">
-                              <div className="dash-car-price-row">
-                                <div className="dash-car-price-box">
-                                  <span className="dash-car-price-num">{sym}{car.pricePerDay || 0}</span>
-                                  <span className="dash-car-price-unit">/day</span>
-                                </div>
-                                <span className="dash-car-rate-tag">
-                                  Verified Fleet
-                                </span>
-                              </div>
-                              <div className="dash-car-card-actions">
-                                <button
-                                  type="button"
-                                  className="dash-view-specs-btn"
-                                  onClick={() => openDetailModal(car)}
-                                  title="View Full Specifications & Customer Reviews"
-                                >
-                                  <FiEye size={13} /> Specs &amp; Reviews
-                                </button>
-                                <button
-                                  type="button"
-                                  className="dash-whatsapp-book-btn"
-                                  onClick={() => openBookingModal(car)}
-                                  title="Book via WhatsApp or Online Reservation"
-                                >
-                                  <FaWhatsapp size={15} /> Book Now
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Customer Assurance Perks Grid */}
-                  <div className="user-dash-perks-grid">
-                    <div className="user-dash-perk-card">
-                      <div style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: '#eff6ff',
-                        color: '#2563eb',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.25rem',
-                        flexShrink: 0
-                      }}>
-                        <FiShield />
-                      </div>
-                      <div>
-                        <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
-                          100% Insured Fleet
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
-                          Comprehensive damage coverage with 24/7 emergency roadside towing &amp; assistance across all routes.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="user-dash-perk-card">
-                      <div style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: '#f0fdf4',
-                        color: '#16a34a',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.25rem',
-                        flexShrink: 0
-                      }}>
-                        <FaWhatsapp />
-                      </div>
-                      <div>
-                        <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
-                          Instant WhatsApp Dispatch
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
-                          Quick document approval and seamless delivery coordination directly via WhatsApp support.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="user-dash-perk-card">
-                      <div style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '12px',
-                        background: '#faf5ff',
-                        color: '#9333ea',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.25rem',
-                        flexShrink: 0
-                      }}>
-                        <FaUserTie />
-                      </div>
-                      <div>
-                        <h4 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
-                          Self-Drive &amp; Chauffeur
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
-                          Choose between personal self-drive freedom or verified professional chauffeurs for city and outstation trips.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Recent Activity Section if bookings exist */}
-                  {recentRentals.length > 0 && (
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '22px 24px' }}>
-                      <div className="user-dash-section-header" style={{ marginBottom: '14px' }}>
-                        <h3 className="user-dash-section-title" style={{ fontSize: '1.15rem' }}>
-                          <FiClock style={{ color: '#2563eb' }} /> Recent Rental Activity
-                        </h3>
-                        <button
-                          type="button"
-                          className="user-dash-section-link"
-                          onClick={() => handleTabChange('bookings')}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {recentRentals.map(b => (
+                        <div
+                          key={b._id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '12px 16px',
+                            background: '#f8fafc',
+                            borderRadius: '10px',
+                            border: '1px solid #edf2f7',
+                            flexWrap: 'wrap',
+                            gap: '12px'
+                          }}
                         >
-                          View All ({bookings.length}) <FiArrowRight />
-                        </button>
-                      </div>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {recentRentals.map(b => (
-                          <div
-                            key={b._id}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              padding: '12px 16px',
-                              background: '#f8fafc',
-                              borderRadius: '10px',
-                              border: '1px solid #edf2f7',
-                              flexWrap: 'wrap',
-                              gap: '12px'
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                              <span style={{ fontSize: '1.2rem' }}>🚗</span>
-                              <div>
-                                <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#0f172a' }}>
-                                  {b.car?.brand} {b.car?.name || 'Vehicle Rental'}
-                                </div>
-                                <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                                  📅 {formatDate(b.startDate)} ➔ {formatDate(b.endDate)} • {b.withDriver ? 'With Chauffeur' : 'Self-Drive'}
-                                </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <span style={{ fontSize: '1.2rem' }}>🚗</span>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#0f172a' }}>
+                                {b.car?.brand} {b.car?.name || 'Vehicle Rental'}
+                              </div>
+                              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                📅 {formatDate(b.startDate)} ➔ {formatDate(b.endDate)} • {b.withDriver ? 'With Chauffeur' : 'Self-Drive'}
                               </div>
                             </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                              <span style={{
-                                padding: '4px 10px',
-                                borderRadius: '20px',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                textTransform: 'uppercase',
-                                background: b.status === 'confirmed' ? '#dcfce7' : b.status === 'pending' ? '#fef3c7' : b.status === 'completed' ? '#e0e7ff' : '#fee2e2',
-                                color: b.status === 'confirmed' ? '#15803d' : b.status === 'pending' ? '#b45309' : b.status === 'completed' ? '#4338ca' : '#b91c1c'
-                              }}>
-                                {b.status}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleTabChange('bookings')}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: '#0284c7',
-                                  fontWeight: 600,
-                                  fontSize: '0.85rem',
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                              >
-                                View <FiChevronRight />
-                              </button>
-                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })()
-          ) : activeTab === 'cars' ? (
-            <>
-              {/* Car Status Filter & Search */}
-              <div className="dash-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div className="dash-status-pills" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button
-                    className={`dash-pill-btn ${statusFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => { setStatusFilter('all'); setCarPage(1); }}
-                  >
-                    All Cars ({cars.length})
-                  </button>
-                  <button
-                    className={`dash-pill-btn pill-available ${statusFilter === 'available' ? 'active' : ''}`}
-                    onClick={() => { setStatusFilter('available'); setCarPage(1); }}
-                  >
-                    <FiCheckCircle /> Available ({cars.filter(c => c.status === 'available' && !c.hasOngoingTrip).length})
-                  </button>
-                  <button
-                    className={`dash-pill-btn ${statusFilter === 'in_trip' ? 'active' : ''}`}
-                    onClick={() => { setStatusFilter('in_trip'); setCarPage(1); }}
-                    style={statusFilter === 'in_trip' ? { background: '#2563eb', color: '#fff', border: '1px solid #1d4ed8' } : {}}
-                  >
-                    <FaCar /> In Trip ({cars.filter(c => c.status === 'rented' || c.hasOngoingTrip).length})
-                  </button>
-                  <button
-                    className={`dash-pill-btn pill-unavailable ${statusFilter === 'unavailable' ? 'active' : ''}`}
-                    onClick={() => { setStatusFilter('unavailable'); setCarPage(1); }}
-                  >
-                    <FiXCircle /> In Service / Other ({cars.filter(c => c.status !== 'available' && c.status !== 'rented' && !c.hasOngoingTrip).length})
-                  </button>
-                </div>
 
-                <div className="dash-search-box">
-                  <FiSearch className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search by car name or brand..."
-                    value={searchQuery}
-                    onChange={(e) => { setSearchQuery(e.target.value); setCarPage(1); }}
-                  />
-                  {searchQuery && (
-                    <button className="search-clear-btn" onClick={() => { setSearchQuery(''); setCarPage(1); }}>
-                      <FiX />
-                    </button>
-                  )}
-                </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <span style={{
+                              padding: '4px 10px',
+                              borderRadius: '20px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              background: b.status === 'confirmed' ? '#dcfce7' : b.status === 'pending' ? '#fef3c7' : b.status === 'completed' ? '#e0e7ff' : '#fee2e2',
+                              color: b.status === 'confirmed' ? '#15803d' : b.status === 'pending' ? '#b45309' : b.status === 'completed' ? '#4338ca' : '#b91c1c'
+                            }}>
+                              {b.status}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleTabChange('bookings')}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#0284c7',
+                                fontWeight: 600,
+                                fontSize: '0.85rem',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              View <FiChevronRight />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()
+        ) : activeTab === 'cars' ? (
+          <>
+            {/* Car Status Filter & Search */}
+            <div className="dash-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="dash-status-pills" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  className={`dash-pill-btn ${statusFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => { setStatusFilter('all'); setCarPage(1); }}
+                >
+                  All Cars ({cars.length})
+                </button>
+                <button
+                  className={`dash-pill-btn pill-available ${statusFilter === 'available' ? 'active' : ''}`}
+                  onClick={() => { setStatusFilter('available'); setCarPage(1); }}
+                >
+                  <FiCheckCircle /> Available ({cars.filter(c => c.status === 'available' && !c.hasOngoingTrip).length})
+                </button>
+                <button
+                  className={`dash-pill-btn ${statusFilter === 'in_trip' ? 'active' : ''}`}
+                  onClick={() => { setStatusFilter('in_trip'); setCarPage(1); }}
+                  style={statusFilter === 'in_trip' ? { background: '#2563eb', color: '#fff', border: '1px solid #1d4ed8' } : {}}
+                >
+                  <FaCar /> In Trip ({cars.filter(c => c.status === 'rented' || c.hasOngoingTrip).length})
+                </button>
+                <button
+                  className={`dash-pill-btn pill-unavailable ${statusFilter === 'unavailable' ? 'active' : ''}`}
+                  onClick={() => { setStatusFilter('unavailable'); setCarPage(1); }}
+                >
+                  <FiXCircle /> In Service / Other ({cars.filter(c => c.status !== 'available' && c.status !== 'rented' && !c.hasOngoingTrip).length})
+                </button>
               </div>
 
-              {/* Cars Grid */}
-              {(() => {
-                const displayedCars = cars.filter(car => {
-                  const isRented = car.status === 'rented' || car.hasOngoingTrip;
-                  const isAvail = car.status === 'available' && !isRented;
-                  if (statusFilter === 'available' && !isAvail) return false;
-                  if (statusFilter === 'in_trip' && !isRented) return false;
-                  if (statusFilter === 'unavailable' && (isAvail || isRented)) return false;
-                  if (searchQuery.trim()) {
-                    const q = searchQuery.toLowerCase().trim();
-                    const nameMatch = car.name?.toLowerCase().includes(q);
-                    const brandMatch = car.brand?.toLowerCase().includes(q);
-                    if (!nameMatch && !brandMatch) return false;
-                  }
-                  return true;
-                });
+              <div className="dash-search-box">
+                <FiSearch className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search by car name or brand..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCarPage(1); }}
+                />
+                {searchQuery && (
+                  <button className="search-clear-btn" onClick={() => { setSearchQuery(''); setCarPage(1); }}>
+                    <FiX />
+                  </button>
+                )}
+              </div>
+            </div>
 
-                if (displayedCars.length === 0) {
-                  return (
-                    <div className="empty-state" style={{ padding: '60px 20px', background: 'var(--white)', borderRadius: 'var(--radius-lg)' }}>
-                      <FaCar size={44} style={{ color: 'var(--gray)', marginBottom: '12px' }} />
-                      <h3>No cars found</h3>
-                      <p>No vehicles match your current filter criteria.</p>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => { setStatusFilter('all'); setSearchQuery(''); }}
-                        style={{ marginTop: '12px' }}
-                      >
-                        Reset Filters
-                      </button>
-                    </div>
-                  );
+            {/* Cars Grid */}
+            {(() => {
+              const displayedCars = cars.filter(car => {
+                const isRented = car.status === 'rented' || car.hasOngoingTrip;
+                const isAvail = car.status === 'available' && !isRented;
+                if (statusFilter === 'available' && !isAvail) return false;
+                if (statusFilter === 'in_trip' && !isRented) return false;
+                if (statusFilter === 'unavailable' && (isAvail || isRented)) return false;
+                if (searchQuery.trim()) {
+                  const q = searchQuery.toLowerCase().trim();
+                  const nameMatch = car.name?.toLowerCase().includes(q);
+                  const brandMatch = car.brand?.toLowerCase().includes(q);
+                  if (!nameMatch && !brandMatch) return false;
                 }
+                return true;
+              });
 
-                const paginatedCars = displayedCars.slice((carPage - 1) * carPageSize, carPage * carPageSize);
-
+              if (displayedCars.length === 0) {
                 return (
-                  <>
-                    <div className="dash-cars-grid">
-                      {paginatedCars.map(car => {
+                  <div className="empty-state" style={{ padding: '60px 20px', background: 'var(--white)', borderRadius: 'var(--radius-lg)' }}>
+                    <FaCar size={44} style={{ color: 'var(--gray)', marginBottom: '12px' }} />
+                    <h3>No cars found</h3>
+                    <p>No vehicles match your current filter criteria.</p>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => { setStatusFilter('all'); setSearchQuery(''); }}
+                      style={{ marginTop: '12px' }}
+                    >
+                      Reset Filters
+                    </button>
+                  </div>
+                );
+              }
+
+              const paginatedCars = displayedCars.slice((carPage - 1) * carPageSize, carPage * carPageSize);
+
+              return (
+                <>
+                  <div className="dash-cars-grid">
+                    {paginatedCars.map(car => {
                       const isRented = car.status === 'rented' || car.hasOngoingTrip;
                       const isAvailable = car.status === 'available' && !isRented;
                       const image = car.images?.[0] || '/images/car-1.jpg';
-                      const userPendingBooking = bookings.find(b => 
+                      const userPendingBooking = bookings.find(b =>
                         (b.car?._id === car._id || b.car === car._id) && b.status === 'pending'
                       );
-                      const userActiveBooking = bookings.find(b => 
-                        (b.car?._id === car._id || b.car === car._id) && (b.status === 'confirmed' || b.status === 'ongoing')
+                      const userOngoingBooking = bookings.find(b =>
+                        (b.car?._id === car._id || b.car === car._id) && b.status === 'ongoing'
+                      );
+                      const userConfirmedBooking = bookings.find(b =>
+                        (b.car?._id === car._id || b.car === car._id) && (b.status === 'confirmed' || b.status === 'driver_assigned')
                       );
                       return (
                         <div key={car._id} className={`dash-car-card ${!isAvailable ? 'card-unavailable' : ''}`}>
                           {/* Card Header Top */}
                           <div className="dash-car-card-top">
                             <div className="dash-car-card-title-box">
-                              <h3 
+                              <h3
                                 className="dash-car-title"
-                                onClick={() => openDetailModal(car)} 
+                                onClick={() => openDetailModal(car)}
                                 title={`View ${car.name} specifications`}
                               >
                                 {car.name}
@@ -1334,7 +1339,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                               <span>•</span>
                               <span>{car.year || 2024}</span>
                               <span style={{ margin: '0 4px', color: '#cbd5e1' }}>•</span>
-                              <span 
+                              <span
                                 style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: '#f59e0b', fontWeight: 700, cursor: 'pointer' }}
                                 onClick={() => openDetailModal(car)}
                                 title="View Customer Ratings & Reviews"
@@ -1350,10 +1355,15 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                                 <span className="status-indicator-dot pending"></span>
                                 Booking Pending
                               </span>
-                            ) : userActiveBooking ? (
+                            ) : userOngoingBooking ? (
                               <span className="dash-car-status-pill in-trip">
                                 <span className="status-indicator-dot in-trip"></span>
                                 In Trip (Your Trip)
+                              </span>
+                            ) : userConfirmedBooking ? (
+                              <span className="dash-car-status-pill confirmed">
+                                <span className="status-indicator-dot confirmed"></span>
+                                Confirmed
                               </span>
                             ) : isRented ? (
                               <span className="dash-car-status-pill in-trip">
@@ -1374,14 +1384,14 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                           </div>
 
                           {/* Curved Image Showcase */}
-                          <div 
-                            className="dash-car-img-wrapper" 
+                          <div
+                            className="dash-car-img-wrapper"
                             onClick={() => openDetailModal(car)}
                             title="Click to view detailed vehicle specifications & customer reviews"
                           >
-                            <img 
-                              src={image} 
-                              alt={car.name} 
+                            <img
+                              src={image}
+                              alt={car.name}
                               className="dash-car-img-elem"
                               loading="lazy"
                               onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
@@ -1436,6 +1446,26 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                                 >
                                   <FiClock size={14} /> Pending
                                 </button>
+                              ) : userOngoingBooking ? (
+                                <button
+                                  type="button"
+                                  className="dash-whatsapp-book-btn in-trip"
+                                  disabled={true}
+                                  title="Your trip is currently active"
+                                  style={{ background: '#0284c7', color: '#fff', cursor: 'not-allowed', opacity: 0.9 }}
+                                >
+                                  <FaCar size={13} /> Active Trip
+                                </button>
+                              ) : userConfirmedBooking ? (
+                                <button
+                                  type="button"
+                                  className="dash-whatsapp-book-btn confirmed"
+                                  disabled={true}
+                                  title="Your reservation is confirmed for this vehicle"
+                                  style={{ background: '#059669', color: '#fff', cursor: 'not-allowed', opacity: 0.9 }}
+                                >
+                                  <FiCheckCircle size={14} /> Confirmed
+                                </button>
                               ) : isAvailable ? (
                                 <button
                                   type="button"
@@ -1446,8 +1476,8 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                                   <FaWhatsapp size={15} /> Book Now
                                 </button>
                               ) : isRented ? (
-                                <button 
-                                  type="button" 
+                                <button
+                                  type="button"
                                   className="dash-whatsapp-book-btn in-trip"
                                   onClick={() => openDetailModal(car)}
                                   title="Vehicle is currently on an active rental trip"
@@ -1455,8 +1485,8 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                                   <FaCar size={13} /> In Trip
                                 </button>
                               ) : (
-                                <button 
-                                  type="button" 
+                                <button
+                                  type="button"
                                   className="dash-whatsapp-book-btn disabled"
                                   onClick={() => openDetailModal(car)}
                                   title="Vehicle currently unavailable"
@@ -1482,130 +1512,130 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                 </>
               );
             })()}
-            </>
-          ) : activeTab === 'bookings' ? (
-            /* My Car Rentals Tab with Status KPI Cards & Filters */
-            <div className="dash-bookings">
-              {bookings.length === 0 ? (
-                <div className="empty-state">
-                  <FiCalendar size={48} style={{ color: 'var(--gray)', marginBottom: '15px' }} />
-                  <h3>No Car Rentals Yet</h3>
-                  <p>Browse our vehicle fleet and reserve self-drive or with-driver trips.</p>
-                  <button className="btn btn-primary" onClick={() => handleTabChange('cars')} style={{ marginTop: '12px' }}>
-                    Browse Fleet
-                  </button>
-                </div>
-              ) : (() => {
-                const totalCount = bookings.length;
-                const completedCount = bookings.filter(b => b.status === 'completed').length;
-                const pendingCount = bookings.filter(b => b.status === 'pending').length;
-                const activeCount = bookings.filter(b => b.status === 'confirmed' || b.status === 'driver_assigned' || b.status === 'ongoing').length;
-                const cancelledCount = bookings.filter(b => b.status === 'cancelled').length;
+          </>
+        ) : activeTab === 'bookings' ? (
+          /* My Car Rentals Tab with Status KPI Cards & Filters */
+          <div className="dash-bookings">
+            {bookings.length === 0 ? (
+              <div className="empty-state">
+                <FiCalendar size={48} style={{ color: 'var(--gray)', marginBottom: '15px' }} />
+                <h3>No Car Rentals Yet</h3>
+                <p>Browse our vehicle fleet and reserve self-drive or with-driver trips.</p>
+                <button className="btn btn-primary" onClick={() => handleTabChange('cars')} style={{ marginTop: '12px' }}>
+                  Browse Fleet
+                </button>
+              </div>
+            ) : (() => {
+              const totalCount = bookings.length;
+              const completedCount = bookings.filter(b => b.status === 'completed').length;
+              const pendingCount = bookings.filter(b => b.status === 'pending').length;
+              const activeCount = bookings.filter(b => b.status === 'confirmed' || b.status === 'driver_assigned' || b.status === 'ongoing').length;
+              const cancelledCount = bookings.filter(b => b.status === 'cancelled').length;
 
-                const filteredList = bookings.filter(b => {
-                  if (bookingFilter === 'all') return true;
-                  if (bookingFilter === 'pending') return b.status === 'pending';
-                  if (bookingFilter === 'completed') return b.status === 'completed';
-                  if (bookingFilter === 'active') return b.status === 'confirmed' || b.status === 'driver_assigned' || b.status === 'ongoing';
-                  if (bookingFilter === 'cancelled') return b.status === 'cancelled';
-                  return true;
-                });
+              const filteredList = bookings.filter(b => {
+                if (bookingFilter === 'all') return true;
+                if (bookingFilter === 'pending') return b.status === 'pending';
+                if (bookingFilter === 'completed') return b.status === 'completed';
+                if (bookingFilter === 'active') return b.status === 'confirmed' || b.status === 'driver_assigned' || b.status === 'ongoing';
+                if (bookingFilter === 'cancelled') return b.status === 'cancelled';
+                return true;
+              });
 
-                return (
-                  <div>
-                    {/* Summary KPI Cards: Completed vs Pending vs Active */}
-                    <div className="dash-kpi-grid">
-                      <div 
-                        onClick={() => { setBookingFilter('all'); setRentalPage(1); }}
-                        style={{
-                          background: '#fff', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'all' ? '2px solid #0f172a' : '1px solid #e2e8f0',
-                          cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                        }}
-                      >
-                        <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>All Rentals</div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', margin: '4px 0' }}>{totalCount}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Total bookings made</div>
-                      </div>
-
-                      <div 
-                        onClick={() => { setBookingFilter('pending'); setRentalPage(1); }}
-                        style={{
-                          background: '#fffbeb', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'pending' ? '2px solid #f59e0b' : '1px solid #fde68a',
-                          cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(245,158,11,0.08)'
-                        }}
-                      >
-                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#b45309', textTransform: 'uppercase' }}>⏳ Pending Approval</div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#d97706', margin: '4px 0' }}>{pendingCount}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#b45309' }}>Awaiting confirmation</div>
-                      </div>
-
-                      <div 
-                        onClick={() => { setBookingFilter('active'); setRentalPage(1); }}
-                        style={{
-                          background: '#eff6ff', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'active' ? '2px solid #3b82f6' : '1px solid #bfdbfe',
-                          cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(59,130,246,0.08)'
-                        }}
-                      >
-                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase' }}>🚗 Active / Confirmed</div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#2563eb', margin: '4px 0' }}>{activeCount}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#1d4ed8' }}>Upcoming or ongoing</div>
-                      </div>
-
-                      <div 
-                        onClick={() => { setBookingFilter('completed'); setRentalPage(1); }}
-                        style={{
-                          background: '#ecfdf5', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'completed' ? '2px solid #10b981' : '1px solid #a7f3d0',
-                          cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(16,185,129,0.08)'
-                        }}
-                      >
-                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857', textTransform: 'uppercase' }}>✅ Completed Trips</div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#059669', margin: '4px 0' }}>{completedCount}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#047857' }}>Safely returned &amp; closed</div>
-                      </div>
+              return (
+                <div>
+                  {/* Summary KPI Cards: Completed vs Pending vs Active */}
+                  <div className="dash-kpi-grid">
+                    <div
+                      onClick={() => { setBookingFilter('all'); setRentalPage(1); }}
+                      style={{
+                        background: '#fff', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'all' ? '2px solid #0f172a' : '1px solid #e2e8f0',
+                        cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                      }}
+                    >
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>All Rentals</div>
+                      <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', margin: '4px 0' }}>{totalCount}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Total bookings made</div>
                     </div>
 
-                    {/* Filter Pills */}
-                    <div className="dash-booking-filters-bar">
-                      <div className="dash-booking-pills-row">
-                        {[
-                          { key: 'all', label: `All (${totalCount})` },
-                          { key: 'pending', label: `Pending (${pendingCount})` },
-                          { key: 'active', label: `Active (${activeCount})` },
-                          { key: 'completed', label: `Completed (${completedCount})` },
-                          { key: 'cancelled', label: `Cancelled (${cancelledCount})` },
-                        ].map(pill => (
-                          <button
-                            key={pill.key}
-                            type="button"
-                            onClick={() => { setBookingFilter(pill.key); setRentalPage(1); }}
-                            style={{
-                              padding: '6px 14px', borderRadius: '20px',
-                              border: bookingFilter === pill.key ? '2px solid #f96d00' : '1px solid #e2e8f0',
-                              background: bookingFilter === pill.key ? '#fff7ed' : '#ffffff',
-                              color: bookingFilter === pill.key ? '#f96d00' : '#475569',
-                              fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease'
-                            }}
-                          >
-                            {pill.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="live-sync-indicator" title="Auto-refreshing every 10 seconds">
-                        <span className="pulse-dot"></span>
-                        Live (10s Sync)
-                      </div>
+                    <div
+                      onClick={() => { setBookingFilter('pending'); setRentalPage(1); }}
+                      style={{
+                        background: '#fffbeb', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'pending' ? '2px solid #f59e0b' : '1px solid #fde68a',
+                        cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(245,158,11,0.08)'
+                      }}
+                    >
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#b45309', textTransform: 'uppercase' }}>⏳ Pending Approval</div>
+                      <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#d97706', margin: '4px 0' }}>{pendingCount}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#b45309' }}>Awaiting confirmation</div>
                     </div>
 
-                    {filteredList.length === 0 ? (
-                      <div className="empty-state" style={{ background: '#fff', borderRadius: '14px', padding: '3rem 1rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                        <FiCalendar size={42} style={{ color: '#94a3b8', marginBottom: '12px' }} />
-                        <h4 style={{ color: '#0f172a', fontWeight: 700, margin: '0 0 6px' }}>No {bookingFilter !== 'all' ? bookingFilter : ''} rentals found</h4>
-                        <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>You don't have any bookings matching this status filter.</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="dash-bookings-grid">
+                    <div
+                      onClick={() => { setBookingFilter('active'); setRentalPage(1); }}
+                      style={{
+                        background: '#eff6ff', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'active' ? '2px solid #3b82f6' : '1px solid #bfdbfe',
+                        cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(59,130,246,0.08)'
+                      }}
+                    >
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase' }}>🚗 Active / Confirmed</div>
+                      <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#2563eb', margin: '4px 0' }}>{activeCount}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#1d4ed8' }}>Upcoming or ongoing</div>
+                    </div>
+
+                    <div
+                      onClick={() => { setBookingFilter('completed'); setRentalPage(1); }}
+                      style={{
+                        background: '#ecfdf5', padding: '1.1rem', borderRadius: '14px', border: bookingFilter === 'completed' ? '2px solid #10b981' : '1px solid #a7f3d0',
+                        cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(16,185,129,0.08)'
+                      }}
+                    >
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857', textTransform: 'uppercase' }}>✅ Completed Trips</div>
+                      <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#059669', margin: '4px 0' }}>{completedCount}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#047857' }}>Safely returned &amp; closed</div>
+                    </div>
+                  </div>
+
+                  {/* Filter Pills */}
+                  <div className="dash-booking-filters-bar">
+                    <div className="dash-booking-pills-row">
+                      {[
+                        { key: 'all', label: `All (${totalCount})` },
+                        { key: 'pending', label: `Pending (${pendingCount})` },
+                        { key: 'active', label: `Active (${activeCount})` },
+                        { key: 'completed', label: `Completed (${completedCount})` },
+                        { key: 'cancelled', label: `Cancelled (${cancelledCount})` },
+                      ].map(pill => (
+                        <button
+                          key={pill.key}
+                          type="button"
+                          onClick={() => { setBookingFilter(pill.key); setRentalPage(1); }}
+                          style={{
+                            padding: '6px 14px', borderRadius: '20px',
+                            border: bookingFilter === pill.key ? '2px solid #f96d00' : '1px solid #e2e8f0',
+                            background: bookingFilter === pill.key ? '#fff7ed' : '#ffffff',
+                            color: bookingFilter === pill.key ? '#f96d00' : '#475569',
+                            fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {pill.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="live-sync-indicator" title="Auto-refreshing every 10 seconds">
+                      <span className="pulse-dot"></span>
+                      Live (10s Sync)
+                    </div>
+                  </div>
+
+                  {filteredList.length === 0 ? (
+                    <div className="empty-state" style={{ background: '#fff', borderRadius: '14px', padding: '3rem 1rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                      <FiCalendar size={42} style={{ color: '#94a3b8', marginBottom: '12px' }} />
+                      <h4 style={{ color: '#0f172a', fontWeight: 700, margin: '0 0 6px' }}>No {bookingFilter !== 'all' ? bookingFilter : ''} rentals found</h4>
+                      <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>You don't have any bookings matching this status filter.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="dash-bookings-grid">
                         {filteredList.slice((rentalPage - 1) * rentalPageSize, rentalPage * rentalPageSize).map((b) => {
                           const isChauffeur = b.rentalType === 'chauffeured' || b.withDriver;
                           const driver = b.driver || {};
@@ -1622,22 +1652,22 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                           const rentalSub = (Number(b.subtotal) || 0) + (Number(b.driverFee) || 0);
                           const baseTotal = (rentalSub + (Number(b.taxAmount) || 0)) || (Number(b.totalPrice) || 0);
                           const cardGrandTotal = baseTotal + additionalTotal;
-                          const cardTotalPaid = b.paidAmount !== undefined 
-                            ? Number(b.paidAmount) || 0 
+                          const cardTotalPaid = b.paidAmount !== undefined
+                            ? Number(b.paidAmount) || 0
                             : (b.paymentStatus === 'fully_paid' ? cardGrandTotal : (Number(b.advanceAmount) || 0));
                           const cardBalanceDue = Math.max(0, cardGrandTotal - cardTotalPaid);
 
                           return (
-                            <div 
-                              key={b._id} 
-                              className="dash-rental-card" 
-                              style={{ 
-                                background: '#ffffff', 
-                                borderRadius: '18px', 
-                                border: '1px solid #e2e8f0', 
-                                overflow: 'hidden', 
-                                boxShadow: '0 4px 18px rgba(15, 23, 42, 0.06)', 
-                                display: 'flex', 
+                            <div
+                              key={b._id}
+                              className="dash-rental-card"
+                              style={{
+                                background: '#ffffff',
+                                borderRadius: '18px',
+                                border: '1px solid #e2e8f0',
+                                overflow: 'hidden',
+                                boxShadow: '0 4px 18px rgba(15, 23, 42, 0.06)',
+                                display: 'flex',
                                 flexDirection: 'column',
                                 transition: 'all 0.25s ease'
                               }}
@@ -2087,192 +2117,192 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                       />
                     </>
                   )}
-                  </div>
-                );
-              })()}
-            </div>
-          ) : (
-            /* Saved Profile & Addresses Tab */
-            <div style={{ maxWidth: '680px', margin: '1.5rem auto 3rem auto', background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-              <h3 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>
-                Account Profile &amp; Address
-              </h3>
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Save your contact information and address for expedited vehicle reservations and rental agreements.
+                </div>
+              );
+            })()}
+          </div>
+        ) : (
+          /* Saved Profile & Addresses Tab */
+          <div style={{ maxWidth: '680px', margin: '1.5rem auto 3rem auto', background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>
+              Account Profile &amp; Address
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              Save your contact information and address for expedited vehicle reservations and rental agreements.
+            </p>
+
+            {profileMsg && (
+              <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
+                ✓ {profileMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile} noValidate>
+              <div className="dash-form-row-2">
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Full Name *</label>
+                  <input
+                    type="text"
+                    className={profileErrors.name ? 'input-error' : ''}
+                    value={profileData.name}
+                    onChange={(e) => {
+                      setProfileData(p => ({ ...p, name: e.target.value }));
+                      if (profileErrors.name) setProfileErrors(prev => ({ ...prev, name: '' }));
+                    }}
+                    style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: profileErrors.name ? '1.5px solid #ef4444' : '1px solid #cbd5e1' }}
+                  />
+                  {profileErrors.name && <span className="field-error-text">{profileErrors.name}</span>}
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Phone Number *</label>
+                  <input
+                    type="tel"
+                    className={profileErrors.phone ? 'input-error' : ''}
+                    value={profileData.phone}
+                    onChange={(e) => {
+                      setProfileData(p => ({ ...p, phone: e.target.value }));
+                      if (profileErrors.phone) setProfileErrors(prev => ({ ...prev, phone: '' }));
+                    }}
+                    placeholder="+91 9876543210"
+                    style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: profileErrors.phone ? '1.5px solid #ef4444' : '1px solid #cbd5e1' }}
+                  />
+                  {profileErrors.phone && <span className="field-error-text">{profileErrors.phone}</span>}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Address</label>
+                <input
+                  type="text"
+                  value={profileData.street}
+                  onChange={(e) => setProfileData(p => ({ ...p, street: e.target.value }))}
+                  placeholder="House/Flat No., Street, Landmark, Area"
+                  style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>City</label>
+                <input
+                  type="text"
+                  value={profileData.city}
+                  onChange={(e) => setProfileData(p => ({ ...p, city: e.target.value }))}
+                  placeholder="e.g. Chennai, Bangalore, Coimbatore, Delhi"
+                  style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={profileSaving}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <FiSave /> {profileSaving ? 'Saving...' : 'Save Profile Details'}
+              </button>
+            </form>
+
+            {/* Security & Change Password Section */}
+            <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                <FiLock style={{ color: '#f96d00', fontSize: '1.2rem' }} />
+                <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
+                  Security &amp; Change Password
+                </h4>
+              </div>
+              <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
+                Update your password to keep your bookings and rental credentials secure.
               </p>
 
-              {profileMsg && (
-                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
-                  ✓ {profileMsg}
+              {pwdSuccess && (
+                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FiCheckCircle /> {pwdSuccess}
                 </div>
               )}
 
-              <form onSubmit={handleSaveProfile} noValidate>
-                <div className="dash-form-row-2">
+              {pwdError && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FiAlertCircle /> {pwdError}
+                </div>
+              )}
+
+              <form onSubmit={handlePasswordChange} noValidate>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Full Name *</label>
-                    <input
-                      type="text"
-                      className={profileErrors.name ? 'input-error' : ''}
-                      value={profileData.name}
-                      onChange={(e) => {
-                        setProfileData(p => ({ ...p, name: e.target.value }));
-                        if (profileErrors.name) setProfileErrors(prev => ({ ...prev, name: '' }));
-                      }}
-                      style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: profileErrors.name ? '1.5px solid #ef4444' : '1px solid #cbd5e1' }}
-                    />
-                    {profileErrors.name && <span className="field-error-text">{profileErrors.name}</span>}
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+                      Current Password *
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showCurrentPwd ? 'text' : 'password'}
+                        value={pwdForm.currentPassword}
+                        onChange={(e) => setPwdForm(p => ({ ...p, currentPassword: e.target.value }))}
+                        placeholder="Enter your existing password"
+                        style={{ width: '100%', padding: '0.65rem 2.6rem 0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPwd(v => !v)}
+                        style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
+                        title={showCurrentPwd ? 'Hide password' : 'Show password'}
+                      >
+                        {showCurrentPwd ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Phone Number *</label>
-                    <input
-                      type="tel"
-                      className={profileErrors.phone ? 'input-error' : ''}
-                      value={profileData.phone}
-                      onChange={(e) => {
-                        setProfileData(p => ({ ...p, phone: e.target.value }));
-                        if (profileErrors.phone) setProfileErrors(prev => ({ ...prev, phone: '' }));
-                      }}
-                      placeholder="+91 9876543210"
-                      style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: profileErrors.phone ? '1.5px solid #ef4444' : '1px solid #cbd5e1' }}
-                    />
-                    {profileErrors.phone && <span className="field-error-text">{profileErrors.phone}</span>}
-                  </div>
-                </div>
 
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Address</label>
-                  <input
-                    type="text"
-                    value={profileData.street}
-                    onChange={(e) => setProfileData(p => ({ ...p, street: e.target.value }))}
-                    placeholder="House/Flat No., Street, Landmark, Area"
-                    style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>City</label>
-                  <input
-                    type="text"
-                    value={profileData.city}
-                    onChange={(e) => setProfileData(p => ({ ...p, city: e.target.value }))}
-                    placeholder="e.g. Chennai, Bangalore, Coimbatore, Delhi"
-                    style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={profileSaving}
-                  className="btn btn-primary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <FiSave /> {profileSaving ? 'Saving...' : 'Save Profile Details'}
-                </button>
-              </form>
-
-              {/* Security & Change Password Section */}
-              <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
-                  <FiLock style={{ color: '#f96d00', fontSize: '1.2rem' }} />
-                  <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
-                    Security &amp; Change Password
-                  </h4>
-                </div>
-                <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-                  Update your password to keep your bookings and rental credentials secure.
-                </p>
-
-                {pwdSuccess && (
-                  <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <FiCheckCircle /> {pwdSuccess}
-                  </div>
-                )}
-
-                {pwdError && (
-                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <FiAlertCircle /> {pwdError}
-                  </div>
-                )}
-
-                <form onSubmit={handlePasswordChange} noValidate>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
+                  <div className="dash-form-row-2">
                     <div>
                       <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-                        Current Password *
+                        New Password *
                       </label>
                       <div style={{ position: 'relative' }}>
                         <input
-                          type={showCurrentPwd ? 'text' : 'password'}
-                          value={pwdForm.currentPassword}
-                          onChange={(e) => setPwdForm(p => ({ ...p, currentPassword: e.target.value }))}
-                          placeholder="Enter your existing password"
+                          type={showNewPwd ? 'text' : 'password'}
+                          value={pwdForm.newPassword}
+                          onChange={(e) => setPwdForm(p => ({ ...p, newPassword: e.target.value }))}
+                          placeholder="Min. 6 characters"
                           style={{ width: '100%', padding: '0.65rem 2.6rem 0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
                         />
                         <button
                           type="button"
-                          onClick={() => setShowCurrentPwd(v => !v)}
+                          onClick={() => setShowNewPwd(v => !v)}
                           style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
-                          title={showCurrentPwd ? 'Hide password' : 'Show password'}
+                          title={showNewPwd ? 'Hide password' : 'Show password'}
                         >
-                          {showCurrentPwd ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                          {showNewPwd ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                         </button>
                       </div>
                     </div>
 
-                    <div className="dash-form-row-2">
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-                          New Password *
-                        </label>
-                        <div style={{ position: 'relative' }}>
-                          <input
-                            type={showNewPwd ? 'text' : 'password'}
-                            value={pwdForm.newPassword}
-                            onChange={(e) => setPwdForm(p => ({ ...p, newPassword: e.target.value }))}
-                            placeholder="Min. 6 characters"
-                            style={{ width: '100%', padding: '0.65rem 2.6rem 0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowNewPwd(v => !v)}
-                            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
-                            title={showNewPwd ? 'Hide password' : 'Show password'}
-                          >
-                            {showNewPwd ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-                          Confirm New Password *
-                        </label>
-                        <input
-                          type="password"
-                          value={pwdForm.confirmPassword}
-                          onChange={(e) => setPwdForm(p => ({ ...p, confirmPassword: e.target.value }))}
-                          placeholder="Re-enter new password"
-                          style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                        />
-                      </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+                        Confirm New Password *
+                      </label>
+                      <input
+                        type="password"
+                        value={pwdForm.confirmPassword}
+                        onChange={(e) => setPwdForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                        placeholder="Re-enter new password"
+                        style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      />
                     </div>
                   </div>
+                </div>
 
-                  <button
-                    type="submit"
-                    disabled={pwdLoading}
-                    className="btn btn-outline"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', borderColor: '#f96d00', color: '#f96d00', fontWeight: 600 }}
-                  >
-                    <FiKey /> {pwdLoading ? 'Updating Password...' : 'Update Password'}
-                  </button>
-                </form>
-              </div>
+                <button
+                  type="submit"
+                  disabled={pwdLoading}
+                  className="btn btn-outline"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', borderColor: '#f96d00', color: '#f96d00', fontWeight: 600 }}
+                >
+                  <FiKey /> {pwdLoading ? 'Updating Password...' : 'Update Password'}
+                </button>
+              </form>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
       {/* Vehicle Detail Modal */}
       {showDetailModal && detailCar && (
@@ -2386,7 +2416,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                     type="button"
                     onClick={() => {
                       setShowModal(false);
-                      handleTabChange('rentals');
+                      handleTabChange('bookings');
                     }}
                     style={{
                       display: 'inline-flex',
@@ -2842,11 +2872,11 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
               )}
 
               {userPendingForSelectedCar ? (
-                <button 
-                  type="button" 
-                  className="btn-whatsapp-submit" 
+                <button
+                  type="button"
+                  className="btn-whatsapp-submit"
                   disabled={true}
-                  style={{ 
+                  style={{
                     marginTop: '0.5rem',
                     background: '#fef3c7',
                     color: '#92400e',
@@ -2858,11 +2888,11 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                   <FiClock size={18} /> Booking Currently Pending Approval
                 </button>
               ) : (
-                <button 
-                  type="submit" 
-                  className="btn-whatsapp-submit" 
+                <button
+                  type="submit"
+                  className="btn-whatsapp-submit"
                   disabled={bookingLoading || (quote && quote.isAvailable === false)}
-                  style={{ 
+                  style={{
                     marginTop: '0.5rem',
                     ...(quote && quote.isAvailable === false ? { background: '#94a3b8', cursor: 'not-allowed' } : {})
                   }}
@@ -2901,12 +2931,12 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
-            style={{ 
-              maxWidth: '580px', 
-              width: '92%', 
-              maxHeight: '90vh', 
-              overflowY: 'auto', 
-              borderRadius: '20px', 
+            style={{
+              maxWidth: '580px',
+              width: '92%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              borderRadius: '20px',
               padding: '26px',
               background: '#ffffff',
               boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
@@ -3143,10 +3173,10 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                     boxShadow: '0 2px 8px rgba(249, 109, 0, 0.3)'
                   }}
                 >
-                  {reviewLoading 
-                    ? 'Submitting...' 
-                    : (reviewBooking.withDriver || reviewBooking.driver) 
-                      ? 'Submit Trip Reviews (Vehicle & Driver)' 
+                  {reviewLoading
+                    ? 'Submitting...'
+                    : (reviewBooking.withDriver || reviewBooking.driver)
+                      ? 'Submit Trip Reviews (Vehicle & Driver)'
                       : 'Submit Verified Review'}
                 </button>
               </div>
@@ -3157,7 +3187,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
 
       {/* Floating Success Toast */}
       {bookingToast && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: '24px',
@@ -3182,8 +3212,8 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
               <FiCheckCircle size={20} style={{ color: '#34d399' }} />
               <span>Reservation Request Sent!</span>
             </div>
-            <button 
-              onClick={() => setBookingToast(null)} 
+            <button
+              onClick={() => setBookingToast(null)}
               style={{ background: 'none', border: 'none', color: '#a7f3d0', cursor: 'pointer', padding: '2px', display: 'flex' }}
               aria-label="Dismiss notification"
             >

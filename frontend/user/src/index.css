@@ -2012,6 +2012,12 @@ img {
   border: 1px solid #a7f3d0;
 }
 
+.dash-car-status-pill.confirmed {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
 .dash-car-status-pill.in-trip {
   background: #eff6ff;
   color: #1d4ed8;
@@ -2041,6 +2047,11 @@ img {
 .status-indicator-dot.available {
   background: #10b981;
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.status-indicator-dot.confirmed {
+  background: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
 }
 
 .status-indicator-dot.in-trip {
@@ -2277,11 +2288,21 @@ img {
   transform: none;
 }
 
-.dash-whatsapp-book-btn.disabled {
-  background: #f1f5f9;
-  color: #94a3b8;
-  border: 1px solid #e2e8f0;
+.dash-whatsapp-book-btn.confirmed {
+  background: #059669;
+  color: #fff;
+  border: none;
   box-shadow: none;
+  font-weight: 700;
+}
+
+.dash-whatsapp-book-btn.confirmed:hover {
+  background: #059669;
+  transform: none;
+}
+
+.dash-whatsapp-book-btn.disabled,
+.dash-whatsapp-book-btn:disabled {
   cursor: not-allowed;
   transform: none;
 }
