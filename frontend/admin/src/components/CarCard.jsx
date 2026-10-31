@@ -161,7 +161,7 @@ export default function CarCard({
           src={car.images && car.images[0] ? car.images[0] : '/images/car-1.jpg'}
           alt={car.name}
           className="car-card-img"
-          onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+          onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
         />
       </div>
 

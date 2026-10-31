@@ -289,7 +289,7 @@ export default function CustomerDetailModal({ customerId, initialTab = 'rentals'
                                 src={booking.car?.images?.[0] || '/images/car-1.jpg'} 
                                 alt={booking.car?.name || 'Vehicle'} 
                                 className="cust-card-thumb"
-                                onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                                onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                               />
                             </div>
                             <div>
@@ -408,7 +408,7 @@ export default function CustomerDetailModal({ customerId, initialTab = 'rentals'
                                   src={itemImg} 
                                   alt={itemName} 
                                   className="cust-review-item-thumb" 
-                                  onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                                  onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                                 />
                                 <div>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -999,7 +999,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                               alt={car.name}
                               className="dash-car-img-elem"
                               loading="lazy"
-                              onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                              onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                             />
                             <div className="dash-img-hover-overlay">
                               <span className="dash-hover-pill"><FiEye /> Specs &amp; Reviews</span>
@@ -1394,7 +1394,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                               alt={car.name}
                               className="dash-car-img-elem"
                               loading="lazy"
-                              onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                              onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                             />
                             <div className="dash-img-hover-overlay">
                               <span className="dash-hover-pill"><FiEye /> Specs &amp; Reviews</span>
@@ -1678,7 +1678,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                                   src={carImg}
                                   alt={b.car?.name || 'Vehicle'}
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                  onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                                  onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                                 />
                                 {/* Top Scrim */}
                                 <div style={{

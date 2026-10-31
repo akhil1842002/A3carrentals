@@ -71,7 +71,7 @@ export default function CarDetailPanel({
           src={activeHeroImg}
           alt={car.name}
           className="detail-hero-img"
-          onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+          onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
         />
         {carImages.length > 1 && (
           <span className="hero-photo-counter-badge">
@@ -94,7 +94,7 @@ export default function CarDetailPanel({
               <img
                 src={imgUrl}
                 alt={`Angle ${idx + 1}`}
-                onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
               />
             </button>
           ))}

@@ -785,7 +785,7 @@ export default function ExecutiveOverview({
                     src={v.image}
                     alt={v.name}
                     className="top-vehicle-thumb"
-                    onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                   />
                   <div className="top-vehicle-info">
                     <span className="top-vehicle-name">{v.brand} {v.name}</span>
@@ -877,7 +877,7 @@ export default function ExecutiveOverview({
                           src={car.images && car.images[0] ? car.images[0] : '/images/car-1.jpg'}
                           alt={car.name}
                           className="table-car-thumb"
-                          onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                          onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                         />
                         <div>
                           <strong className="table-car-name">{car.name}</strong>

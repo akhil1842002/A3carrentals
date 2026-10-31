@@ -259,7 +259,7 @@ export default function TyresManagement({ tyres = [], onAddTyre, onEditTyre, onD
                   <img
                     src={tyre.image || '/images/car-1.jpg'}
                     alt={tyre.name}
-                    onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                   />
                   <span className={`tyre-floating-status-badge ${isOut ? 'out' : isLow ? 'low' : 'ok'}`}>
                     {isOut ? 'Out of Stock' : isLow ? `Low: ${qty} Left` : `${qty} Units`}
@@ -399,7 +399,7 @@ export default function TyresManagement({ tyres = [], onAddTyre, onEditTyre, onD
                           src={tyre.image || '/images/car-1.jpg'}
                           alt={tyre.name}
                           className="table-tyre-thumb"
-                          onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                          onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                         />
                         <div>
                           <strong className="table-tyre-name">{tyre.name}</strong>

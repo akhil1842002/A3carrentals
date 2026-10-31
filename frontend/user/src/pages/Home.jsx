@@ -417,7 +417,7 @@ export default function Home() {
                         src={carImg}
                         alt={`${brand} ${name}`}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                        onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                       />
                       <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase' }}>
                         {car.vehicleType || 'Car'}
@@ -946,7 +946,7 @@ export default function Home() {
                             src={carImg}
                             alt={car.name}
                             style={{ width: '36px', height: '24px', objectFit: 'cover', borderRadius: '4px' }}
-                            onError={(e) => { e.target.src = '/images/car-1.jpg'; }}
+                            onError={(e) => { e.target.onerror = null; e.target.src = '/images/car-1.jpg'; }}
                           />
                           <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>{car.brand} {car.name}</span>
                         </div>
