@@ -9,7 +9,7 @@ import useSeo from '../hooks/useSeo';
 export default function Contact() {
   useSeo({
     title: 'Contact A3 Car Rentals — Kaliakkavilai',
-    description: 'Contact A3 Car Rentals at our hub near Jayamatha Hospital, Opp. Ration Shop, Kaliakkavilai - 629153. Call or WhatsApp +91 73970 98447. Open Mon-Sun 8AM to 10PM.',
+    description: 'Contact A3 Car Rentals at our hub near Jayamatha Hospital, Opp. Ration Shop, Kaliakkavilai - 629153. Call or WhatsApp +91 96291 82095. Open Mon-Sun 8AM to 10PM.',
     canonical: 'https://a3carrentals.in/contact',
     keywords: ['contact A3 Car Rentals', 'car rental contact Kaliakkavilai', 'book car Marthandam phone number', 'A3 car rental WhatsApp', 'car rental enquiry Kaliakkavilai']
   });
@@ -94,14 +94,14 @@ Please get back to me at your earliest convenience!`;
                   <div className="contact-icon"><FiPhone /></div>
                   <div>
                     <h4>Phone</h4>
-                    <p>{settings.supportPhone || (settings.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 73970 98447')}</p>
+                    <p>{settings.supportPhone || (settings.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 96291 82095')}</p>
                   </div>
                 </div>
                 <div className="contact-item">
                   <div className="contact-icon"><FiMail /></div>
                   <div>
                     <h4>Email</h4>
-                    <p>{settings.supportEmail || 'contact@carbookindia.com'}</p>
+                    <p>{settings.supportEmail || 'Shajanshaji111@gmail.com'}</p>
                   </div>
                 </div>
                 <div className="contact-item">

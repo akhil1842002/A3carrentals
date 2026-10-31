@@ -111,92 +111,94 @@ export default function OrdersManagement() {
           <p>Orders placed through the customer portal will appear here for packing and dispatch.</p>
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="admin-data-table">
-            <thead>
-              <tr>
-                <th>Order Number</th>
-                <th>Recipient &amp; Destination</th>
-                <th>Items &amp; Quantities</th>
-                <th>Payment / Total</th>
-                <th>Carrier / Tracking</th>
-                <th>Fulfillment Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map(o => (
-                <tr key={o._id}>
-                  <td>
-                    <strong>{o.orderNumber}</strong>
-                    <small style={{ display: 'block', color: 'var(--text-secondary)' }}>
-                      {formatDate(o.createdAt)}
-                    </small>
-                  </td>
-                  <td>
-                    <div className="cell-contact">
-                      <strong>{o.deliveryAddress?.fullName || 'Customer'}</strong>
-                      <small style={{ color: 'var(--text-secondary)' }}>{o.deliveryAddress?.phone}</small>
-                      <small style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                        <FaMapMarkerAlt /> {o.deliveryAddress?.city}, {o.deliveryAddress?.state || o.deliveryAddress?.zip}
+        <div className="table-card-container">
+          <div className="table-responsive">
+            <table className="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Order Number</th>
+                  <th>Recipient &amp; Destination</th>
+                  <th>Items &amp; Quantities</th>
+                  <th>Payment / Total</th>
+                  <th>Carrier / Tracking</th>
+                  <th>Fulfillment Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map(o => (
+                  <tr key={o._id}>
+                    <td>
+                      <strong>{o.orderNumber}</strong>
+                      <small style={{ display: 'block', color: 'var(--text-secondary)' }}>
+                        {formatDate(o.createdAt)}
                       </small>
-                    </div>
-                  </td>
-                  <td>
-                    {o.items?.map((it, idx) => (
-                      <div key={idx} style={{ marginBottom: '4px' }}>
-                        <strong>{it.brand} {it.name}</strong>
-                        <small style={{ display: 'block', color: 'var(--text-secondary)' }}>
-                          Size: {it.size} • Qty: {it.quantity} × ${it.unitPrice}
+                    </td>
+                    <td>
+                      <div className="cell-contact">
+                        <strong>{o.deliveryAddress?.fullName || 'Customer'}</strong>
+                        <small style={{ color: 'var(--text-secondary)' }}>{o.deliveryAddress?.phone}</small>
+                        <small style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                          <FaMapMarkerAlt /> {o.deliveryAddress?.city}, {o.deliveryAddress?.state || o.deliveryAddress?.zip}
                         </small>
                       </div>
-                    ))}
-                  </td>
-                  <td>
-                    <strong className="cell-price">${o.totalAmount}</strong>
-                    <small style={{ display: 'block', color: '#10B981', fontWeight: 600 }}>
-                      ✓ {o.paymentMethod.toUpperCase()} (Paid)
-                    </small>
-                  </td>
-                  <td>
-                    {o.trackingNumber ? (
-                      <div>
-                        <code>{o.trackingNumber}</code>
-                        <small style={{ display: 'block', color: 'var(--text-secondary)' }}>{o.carrier}</small>
-                      </div>
-                    ) : (
-                      <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Awaiting Dispatch</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className={`status-chip chip-${o.status}`}>
-                      {o.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="cell-actions">
-                      {o.status !== 'delivered' && o.status !== 'cancelled' && (
-                        <button
-                          className="btn-action-sm confirm"
-                          title="Advance Fulfillment Status"
-                          onClick={() => openStatusModal(o)}
-                        >
-                          <FaTruck /> Update Status
-                        </button>
+                    </td>
+                    <td>
+                      {o.items?.map((it, idx) => (
+                        <div key={idx} style={{ marginBottom: '4px' }}>
+                          <strong>{it.brand} {it.name}</strong>
+                          <small style={{ display: 'block', color: 'var(--text-secondary)' }}>
+                            Size: {it.size} • Qty: {it.quantity} × ${it.unitPrice}
+                          </small>
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      <strong className="cell-price">${o.totalAmount}</strong>
+                      <small style={{ display: 'block', color: '#10B981', fontWeight: 600 }}>
+                        ✓ {o.paymentMethod.toUpperCase()} (Paid)
+                      </small>
+                    </td>
+                    <td>
+                      {o.trackingNumber ? (
+                        <div>
+                          <code>{o.trackingNumber}</code>
+                          <small style={{ display: 'block', color: 'var(--text-secondary)' }}>{o.carrier}</small>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Awaiting Dispatch</span>
                       )}
-                      <button
-                        className="btn-action-sm"
-                        title="Print Packing Slip & Invoice"
-                        onClick={() => setPrintOrder(o)}
-                      >
-                        <FaPrint /> Slip
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td>
+                      <span className={`status-chip chip-${o.status}`}>
+                        {o.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="cell-actions">
+                        {o.status !== 'delivered' && o.status !== 'cancelled' && (
+                          <button
+                            className="btn-action-sm confirm"
+                            title="Advance Fulfillment Status"
+                            onClick={() => openStatusModal(o)}
+                          >
+                            <FaTruck /> Update Status
+                          </button>
+                        )}
+                        <button
+                          className="btn-action-sm"
+                          title="Print Packing Slip & Invoice"
+                          onClick={() => setPrintOrder(o)}
+                        >
+                          <FaPrint /> Slip
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -278,7 +280,7 @@ export default function OrdersManagement() {
                 <div>
                   <h1 className="invoice-logo">Car<span>Book</span> Tyres</h1>
                   <p>Logistics &amp; Distribution Hub • New Delhi &amp; Bengaluru, India</p>
-                  <p>shipping@carbook.in • +91 73970 98447</p>
+                  <p>Shajanshaji111@gmail.com • +91 96291 82095</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <h2>PACKING SLIP &amp; ORDER INVOICE</h2>

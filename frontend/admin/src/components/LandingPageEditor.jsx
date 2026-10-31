@@ -451,7 +451,7 @@ export default function LandingPageEditor() {
             Directly update marketing copy, hero banners, customer testimonials slider, and statistics on your public rental homepage.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="landing-editor-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <a
             href="http://localhost:5175"
             target="_blank"

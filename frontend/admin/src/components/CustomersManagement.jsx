@@ -166,7 +166,7 @@ export default function CustomersManagement() {
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="cust-toolbar-selects">
           <select 
             value={statusFilter} 
             onChange={(e) => {
@@ -174,7 +174,6 @@ export default function CustomersManagement() {
               setCurrentPage(1);
             }}
             className="cust-dropdown-select"
-            style={{ minWidth: '150px' }}
           >
             <option value="all">All Accounts ({customers.length})</option>
             <option value="active">Active Only ({customers.filter(c => c.status !== 'suspended').length})</option>
@@ -188,7 +187,6 @@ export default function CustomersManagement() {
               setCurrentPage(1);
             }}
             className="cust-dropdown-select"
-            style={{ minWidth: '180px' }}
           >
             <option value="newest">Sort: Newest Registered</option>
             <option value="rentals">Sort: Most Car Rentals</option>
@@ -207,8 +205,9 @@ export default function CustomersManagement() {
           <p>{search ? 'Try clearing your search query or status filter.' : 'Registered customer accounts will appear here.'}</p>
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="admin-data-table">
+        <div className="table-card-container">
+          <div className="table-responsive">
+            <table className="admin-data-table">
             <thead>
               <tr>
                 <th>Customer Profile</th>
@@ -311,6 +310,7 @@ export default function CustomersManagement() {
               ))}
             </tbody>
           </table>
+          </div>
           <Pagination
             currentPage={currentPage}
             totalItems={filtered.length}

@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { FaUserShield, FaLock, FaUser } from 'react-icons/fa';
 
 export default function LoginModal({ isOpen, onLogin, error, loading }) {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(() => localStorage.getItem('rememberedAdminIdentifier') || '');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('rememberedAdminIdentifier'));
 
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!username.trim() || !password) return;
-    onLogin({ username: username.trim(), password });
+    onLogin({ username: username.trim(), password, rememberMe });
   };
 
   return (
@@ -60,6 +61,19 @@ export default function LoginModal({ isOpen, onLogin, error, loading }) {
               />
               <FaLock style={{ position: 'absolute', left: '12px', top: '14px', color: 'var(--text-muted)' }} />
             </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: 'var(--text-secondary, #666)' }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ width: '15px', height: '15px', accentColor: 'var(--primary, #2563eb)', cursor: 'pointer' }}
+              />
+              <span>Remember me</span>
+            </label>
+            <span style={{ fontSize: '12px', color: '#888' }}>30 days</span>
           </div>
 
           <button

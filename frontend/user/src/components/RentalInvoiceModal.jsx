@@ -162,7 +162,7 @@ export default function RentalInvoiceModal({ booking, onClose }) {
                 <p className="invoice-tagline">{settings?.tagline || 'Premium Vehicle Fleet & Driver Dispatch Services'}</p>
                 <p className="invoice-contact">{settings?.hubAddress || 'Connaught Place, New Delhi & Indiranagar, Bengaluru, India'}</p>
                 <p className="invoice-contact">
-                  {settings?.supportEmail || 'support@carbook.com'} • {settings?.supportPhone || (settings?.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 73970 98447')}
+                  {settings?.supportEmail || 'Shajanshaji111@gmail.com'} • {settings?.supportPhone || (settings?.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 96291 82095')}
                 </p>
               </div>
               <div className="invoice-meta-col">
@@ -414,7 +414,7 @@ export default function RentalInvoiceModal({ booking, onClose }) {
 
             <div className="invoice-print-footer">
               <p>
-                {settings?.businessName || 'CarBook Mobility India'} • Official Rental Agreement &amp; Tax Invoice • Support: {settings?.supportPhone || (settings?.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 73970 98447')}
+                {settings?.businessName || 'A3 Car rental'} • Official Rental Agreement &amp; Tax Invoice • Support: {settings?.supportPhone || (settings?.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 96291 82095')}
               </p>
             </div>
           </div>

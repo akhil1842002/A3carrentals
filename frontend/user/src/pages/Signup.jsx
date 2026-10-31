@@ -26,7 +26,11 @@ export default function Signup() {
   useSeo({
     title: 'Create Account — A3 Car Rentals',
     description: 'Register with A3 Car Rentals Kaliakkavilai. Fast online self-drive car hire, driver booking, and airport transfer services.',
-    keywords: 'A3 car rentals register, sign up car hire Kaliakkavilai, book self drive car'
+    keywords: [
+      'A3 car rentals register',
+      'sign up car hire Kaliakkavilai',
+      'book self drive car'
+    ]
   });
 
   const { settings } = useSettings();
@@ -131,7 +135,7 @@ export default function Signup() {
         setStep(2);
       } else {
         setSuccess(true);
-        login(res.data.token, res.data.user);
+        login(res.data.token, res.data.user, res.data.refreshToken);
         setTimeout(() => {
           navigate('/dashboard?tab=overview');
         }, 1500);
@@ -160,7 +164,7 @@ export default function Signup() {
         otp: cleanOtp 
       });
       setSuccess(true);
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       setTimeout(() => {
         navigate('/dashboard?tab=overview');
       }, 1500);
@@ -304,30 +308,6 @@ export default function Signup() {
                     marginBottom: '16px'
                   }}>
                     ✓ {infoMsg}
-                  </div>
-                )}
-
-                {devOtp && (
-                  <div style={{
-                    background: '#fffbeb',
-                    border: '1px solid #fde68a',
-                    borderRadius: '10px',
-                    padding: '10px 14px',
-                    marginBottom: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}>
-                    <span style={{ fontSize: '0.82rem', color: '#92400e' }}>
-                      ⚡ <strong>Testing OTP:</strong> {devOtp}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setOtp(devOtp)}
-                      style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f96d00', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
-                    >
-                      Autofill Code
-                    </button>
                   </div>
                 )}
 

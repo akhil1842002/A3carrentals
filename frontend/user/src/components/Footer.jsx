@@ -8,8 +8,8 @@ import { renderBrandName } from '../utils/format';
 export default function Footer() {
   const { settings } = useSettings();
   const brandName = settings?.businessName || 'A3 Car rental';
-  const phoneDisplay = settings?.supportPhone || (settings?.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 73970 98447');
-  const emailDisplay = settings?.supportEmail || 'contact@carbookindia.com';
+  const phoneDisplay = settings?.supportPhone || (settings?.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 96291 82095');
+  const emailDisplay = settings?.supportEmail || 'Shajanshaji111@gmail.com';
   const hubDisplay = settings?.hubAddress || 'Near by Jayamatha Hospital, Opp. Ration Shop, Kaliakkavillai, Panamkalai - 629153';
 
   // Dynamic social links from Admin settings

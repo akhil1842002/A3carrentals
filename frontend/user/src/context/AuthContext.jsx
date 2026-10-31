@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { getMe } from '../api';
+import { getMe, logoutUserApi } from '../api';
 
 const defaultAuthValue = {
   user: null,
@@ -17,14 +17,26 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Listen for session expiry from axios refresh interceptor
+  useEffect(() => {
+    const onAuthExpired = () => {
+      setUser(null);
+    };
+    window.addEventListener('user:auth-expired', onAuthExpired);
+    return () => window.removeEventListener('user:auth-expired', onAuthExpired);
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('carbook_token');
-    if (token) {
+    const refreshToken = localStorage.getItem('carbook_refresh_token');
+    if (token || refreshToken) {
       getMe()
         .then(res => setUser(res.data))
         .catch(() => {
           localStorage.removeItem('carbook_token');
+          localStorage.removeItem('carbook_refresh_token');
           localStorage.removeItem('carbook_user');
+          setUser(null);
         })
         .finally(() => setLoading(false));
     } else {
@@ -32,14 +44,22 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = (token, userData) => {
+  const login = (token, userData, refreshToken) => {
     localStorage.setItem('carbook_token', token);
+    if (refreshToken) {
+      localStorage.setItem('carbook_refresh_token', refreshToken);
+    }
     localStorage.setItem('carbook_user', JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
+    const rfToken = localStorage.getItem('carbook_refresh_token');
+    if (rfToken) {
+      logoutUserApi(rfToken).catch(() => {});
+    }
     localStorage.removeItem('carbook_token');
+    localStorage.removeItem('carbook_refresh_token');
     localStorage.removeItem('carbook_user');
     localStorage.removeItem('userActiveTab');
     setUser(null);

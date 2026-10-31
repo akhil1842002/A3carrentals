@@ -836,8 +836,8 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
           <p>No bookings match the selected status or search term.</p>
         </div>
       ) : (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#64748b', marginBottom: '8px' }}>
+        <div className="table-card-container">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#64748b', padding: '10px 16px 0', background: '#ffffff' }}>
             <span>⇄ Scroll table horizontally to view all columns</span>
           </div>
           <div className="table-responsive">
@@ -1729,7 +1729,7 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
                     <p className="invoice-tagline">{settings?.tagline || 'Premium Vehicle Fleet & Driver Dispatch Services'}</p>
                     <p className="invoice-contact">{settings?.hubAddress || 'Connaught Place, New Delhi & Indiranagar, Bengaluru, India'}</p>
                     <p className="invoice-contact">
-                      {settings?.supportEmail || 'contact@carbookindia.com'} • {settings?.supportPhone || '+91 73970 98447'}
+                      {settings?.supportEmail || 'Shajanshaji111@gmail.com'} • {settings?.supportPhone || '+91 96291 82095'}
                     </p>
                   </div>
                   <div className="invoice-meta-col">
@@ -1981,7 +1981,7 @@ export default function BookingsManagement({ initialSearch = '', onClearInitialS
 
                 <div className="invoice-print-footer">
                   <p>
-                    {settings?.businessName || 'CarBook Mobility India'} • Official Rental Agreement &amp; Tax Invoice • Support: {settings?.supportPhone || '+91 73970 98447'}
+                    {settings?.businessName || 'A3 Car rental'} • Official Rental Agreement &amp; Tax Invoice • Support: {settings?.supportPhone || '+91 96291 82095'}
                   </p>
                 </div>
               </div>

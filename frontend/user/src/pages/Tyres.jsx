@@ -13,7 +13,14 @@ export default function Tyres() {
   useSeo({
     title: 'Car Tyres & Wheel Replacement — Kaliakkavilai',
     description: 'Buy genuine, high-performance car tyres and tubeless wheel replacements in Kaliakkavilai, Kanyakumari. Michelin, Bridgestone, Goodyear with doorstep fitting assistance.',
-    keywords: 'car tyres Kaliakkavilai, tyre shop Kaliakkavilai, buy car tyre Kanyakumari, Michelin tyres Marthandam, tubeless tyre replacement, car puncture Kaliakkavilai'
+    keywords: [
+      'car tyres Kaliakkavilai',
+      'tyre shop Kaliakkavilai',
+      'buy car tyre Kanyakumari',
+      'Michelin tyres Marthandam',
+      'tubeless tyre replacement',
+      'car puncture Kaliakkavilai'
+    ]
   });
 
   const { isAuthenticated } = useAuth();

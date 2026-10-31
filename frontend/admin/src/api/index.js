@@ -11,9 +11,97 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Refresh token concurrency control
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// Response interceptor to catch 401s and refresh expired access tokens automatically
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (!originalRequest) return Promise.reject(error);
+
+    const requestUrl = originalRequest.url || '';
+    const isAuthEndpoint = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/refresh-token');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      const storedRefreshToken = localStorage.getItem('adminRefreshToken');
+      if (!storedRefreshToken) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('adminUser');
+        window.dispatchEvent(new CustomEvent('admin:auth-expired'));
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((newToken) => {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return API(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+        const res = await axios.post(`${baseURL}/auth/refresh-token`, {
+          refreshToken: storedRefreshToken
+        });
+
+        const { token: newToken, refreshToken: newRefreshToken, admin } = res.data;
+        if (newToken) {
+          localStorage.setItem('adminToken', newToken);
+          if (newRefreshToken) {
+            localStorage.setItem('adminRefreshToken', newRefreshToken);
+          }
+          if (admin) {
+            localStorage.setItem('adminUser', JSON.stringify(admin));
+          }
+
+          API.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          processQueue(null, newToken);
+          return API(originalRequest);
+        }
+      } catch (refreshErr) {
+        processQueue(refreshErr, null);
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('adminUser');
+        window.dispatchEvent(new CustomEvent('admin:auth-expired'));
+        return Promise.reject(refreshErr);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 // Auth
 export const login = (credentials) => API.post('/auth/login', credentials);
 export const getMe = () => API.get('/auth/me');
+export const refreshToken = (token) => API.post('/auth/refresh-token', { refreshToken: token });
+export const logoutAdmin = (token) => API.post('/auth/logout', { refreshToken: token });
 
 // Cars
 export const getCars = (params) => API.get('/cars', { params });

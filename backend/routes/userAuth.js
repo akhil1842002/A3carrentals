@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { userAuth } = require('../middleware/auth');
 const { sendEmailOtp, sendSmsOtp } = require('../services/otpService');
+const { generateTokens, verifyRefreshToken } = require('../utils/token');
 
 // Step 1: Initiate Registration & Dispatch Email OTP
 router.post('/register', async (req, res) => {
@@ -84,8 +85,7 @@ router.post('/register', async (req, res) => {
     res.status(200).json({
       requiresOtp: true,
       message: `A 6-digit verification code has been dispatched to ${user.email}`,
-      email: user.email,
-      devOtp: otp
+      email: user.email
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -120,17 +120,21 @@ router.post('/verify-signup-otp', async (req, res) => {
     user.status = 'active';
     user.signupOtp = undefined;
     user.signupOtpExpires = undefined;
-    await user.save();
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const { accessToken, refreshToken } = generateTokens({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name
+    });
+
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.status(201).json({
       success: true,
-      token,
+      token: accessToken,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,
@@ -171,8 +175,7 @@ router.post('/resend-signup-otp', async (req, res) => {
 
     res.json({
       success: true,
-      message: `A fresh 6-digit verification code has been dispatched to ${user.email}`,
-      devOtp: otp
+      message: `A fresh 6-digit verification code has been dispatched to ${user.email}`
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -206,14 +209,19 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Incorrect password. Please verify your credentials or reset password.' });
     }
 
-    const expiresIn = rememberMe ? '30d' : '7d';
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn }
-    );
+    const { accessToken, refreshToken } = generateTokens({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name
+    }, !!rememberMe);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
     res.json({
-      token,
+      token: accessToken,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,
@@ -296,14 +304,19 @@ router.post('/google-login', async (req, res) => {
       await user.save();
     }
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role, name: user.name },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
+    const { accessToken, refreshToken } = generateTokens({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name
+    }, true);
+
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.json({
-      token,
+      token: accessToken,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,
@@ -352,8 +365,7 @@ router.post('/forgot-password', async (req, res) => {
     res.json({
       success: true,
       message: `A 6-digit verification code has been dispatched to your email.`,
-      maskedEmail,
-      devOtp: otp
+      maskedEmail
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -477,6 +489,115 @@ router.put('/me', userAuth, async (req, res) => {
     ).select('-password');
 
     res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Change Password for Authenticated User
+router.post('/change-password', userAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User account not found' });
+    }
+
+    // If account was created via Google and local password was not set yet
+    if (user.authProvider === 'google' && !user.password) {
+      user.password = newPassword;
+      user.authProvider = 'local';
+      await user.save();
+      return res.json({ success: true, message: 'Password has been created successfully!' });
+    }
+
+    if (!currentPassword) {
+      return res.status(400).json({ message: 'Current password is required' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: 'Password has been updated successfully!' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Refresh User Access Token using Refresh Token
+router.post('/refresh-token', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'Refresh token is required' });
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded || !decoded.id) {
+      return res.status(401).json({ message: 'Invalid or expired refresh token' });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: 'User account not found' });
+    }
+
+    if (user.status === 'suspended') {
+      return res.status(403).json({ message: 'Your account is suspended. Please contact support.' });
+    }
+
+    if (user.refreshToken !== refreshToken) {
+      return res.status(401).json({ message: 'Refresh token has expired or been revoked. Please log in again.' });
+    }
+
+    const isRemembered = !!decoded.rememberMe;
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name
+    }, isRemembered);
+
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    res.json({
+      token: accessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        status: user.status,
+        addresses: user.addresses || [],
+        avatar: user.avatar,
+        authProvider: user.authProvider || 'local'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Logout User & invalidate Refresh Token
+router.post('/logout', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (refreshToken) {
+      await User.updateOne({ refreshToken }, { $set: { refreshToken: '' } });
+    }
+    res.json({ success: true, message: 'Logged out successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

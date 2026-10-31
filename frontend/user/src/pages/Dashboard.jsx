@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { 
   FiCalendar, FiMapPin, FiClock, FiX, FiCheckCircle, 
-  FiAlertCircle, FiXCircle, FiSearch, FiEye, FiPhone, FiMail, FiUser, FiTruck,
+  FiAlertCircle, FiXCircle, FiSearch, FiEye, FiEyeOff, FiLock, FiKey, FiPhone, FiMail, FiUser, FiTruck,
   FiFileText, FiShoppingBag, FiSave, FiPrinter, FiShield, FiDisc,
   FiArrowRight, FiCheck, FiChevronRight, FiGrid
 } from 'react-icons/fi';
 import { FaCar, FaWhatsapp, FaUserTie, FaStar } from 'react-icons/fa';
 import { 
   getCars, createBooking, getMyBookings, cancelBooking, getWhatsAppLink,
-  getBookingQuote, updateProfile, createReview, createTripReview, getMe
+  getBookingQuote, updateProfile, changePassword, createReview, createTripReview, getMe
 } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -97,6 +97,18 @@ export default function Dashboard() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
   const [profileErrors, setProfileErrors] = useState({});
+
+  // Change Password State
+  const [pwdForm, setPwdForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showCurrentPwd, setShowCurrentPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdSuccess, setPwdSuccess] = useState('');
+  const [pwdError, setPwdError] = useState('');
   const [modalBookErrors, setModalBookErrors] = useState({});
   const [reviewErrors, setReviewErrors] = useState({});
   const [confirmModal, setConfirmModal] = useState({
@@ -583,6 +595,44 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
       });
     } finally {
       setProfileSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPwdError('');
+    setPwdSuccess('');
+
+    if (!pwdForm.newPassword) {
+      setPwdError('Please enter a new password.');
+      return;
+    }
+    if (pwdForm.newPassword.length < 6) {
+      setPwdError('New password must be at least 6 characters long.');
+      return;
+    }
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+      setPwdError('New passwords do not match. Please re-enter.');
+      return;
+    }
+
+    setPwdLoading(true);
+    try {
+      const res = await changePassword({
+        currentPassword: pwdForm.currentPassword,
+        newPassword: pwdForm.newPassword
+      });
+      setPwdSuccess(res.data?.message || 'Password updated successfully!');
+      setPwdForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      setTimeout(() => setPwdSuccess(''), 4000);
+    } catch (err) {
+      setPwdError(err.response?.data?.message || 'Failed to update password. Please check your current password.');
+    } finally {
+      setPwdLoading(false);
     }
   };
 
@@ -1463,7 +1513,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                 return (
                   <div>
                     {/* Summary KPI Cards: Completed vs Pending vs Active */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div className="dash-kpi-grid">
                       <div 
                         onClick={() => { setBookingFilter('all'); setRentalPage(1); }}
                         style={{
@@ -1514,8 +1564,8 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                     </div>
 
                     {/* Filter Pills */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '10px' }}>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <div className="dash-booking-filters-bar">
+                      <div className="dash-booking-pills-row">
                         {[
                           { key: 'all', label: `All (${totalCount})` },
                           { key: 'pending', label: `Pending (${pendingCount})` },
@@ -1554,7 +1604,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                       </div>
                     ) : (
                       <>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div className="dash-bookings-grid">
                         {filteredList.slice((rentalPage - 1) * rentalPageSize, rentalPage * rentalPageSize).map((b) => {
                           const isChauffeur = b.rentalType === 'chauffeured' || b.withDriver;
                           const driver = b.driver || {};
@@ -1968,7 +2018,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            const phone = settings?.contactPhone || settings?.whatsappNumber || '919876543210';
+                                            const phone = settings?.contactPhone || settings?.whatsappNumber || '919629182095';
                                             const cleanPhone = phone.replace(/[^0-9]/g, '');
                                             const msg = `*Booking Request Follow-up - CarBook*\n` +
                                               `• *Booking ID:* ${b.bookingReference || b._id?.slice(-6)}\n` +
@@ -2057,7 +2107,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
               )}
 
               <form onSubmit={handleSaveProfile} noValidate>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="dash-form-row-2">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>Full Name *</label>
                     <input
@@ -2120,6 +2170,105 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                   <FiSave /> {profileSaving ? 'Saving...' : 'Save Profile Details'}
                 </button>
               </form>
+
+              {/* Security & Change Password Section */}
+              <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                  <FiLock style={{ color: '#f96d00', fontSize: '1.2rem' }} />
+                  <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
+                    Security &amp; Change Password
+                  </h4>
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
+                  Update your password to keep your bookings and rental credentials secure.
+                </p>
+
+                {pwdSuccess && (
+                  <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FiCheckCircle /> {pwdSuccess}
+                  </div>
+                )}
+
+                {pwdError && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FiAlertCircle /> {pwdError}
+                  </div>
+                )}
+
+                <form onSubmit={handlePasswordChange} noValidate>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+                        Current Password *
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={showCurrentPwd ? 'text' : 'password'}
+                          value={pwdForm.currentPassword}
+                          onChange={(e) => setPwdForm(p => ({ ...p, currentPassword: e.target.value }))}
+                          placeholder="Enter your existing password"
+                          style={{ width: '100%', padding: '0.65rem 2.6rem 0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPwd(v => !v)}
+                          style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
+                          title={showCurrentPwd ? 'Hide password' : 'Show password'}
+                        >
+                          {showCurrentPwd ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="dash-form-row-2">
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+                          New Password *
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type={showNewPwd ? 'text' : 'password'}
+                            value={pwdForm.newPassword}
+                            onChange={(e) => setPwdForm(p => ({ ...p, newPassword: e.target.value }))}
+                            placeholder="Min. 6 characters"
+                            style={{ width: '100%', padding: '0.65rem 2.6rem 0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPwd(v => !v)}
+                            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
+                            title={showNewPwd ? 'Hide password' : 'Show password'}
+                          >
+                            {showNewPwd ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
+                          Confirm New Password *
+                        </label>
+                        <input
+                          type="password"
+                          value={pwdForm.confirmPassword}
+                          onChange={(e) => setPwdForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                          placeholder="Re-enter new password"
+                          style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={pwdLoading}
+                    className="btn btn-outline"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', borderColor: '#f96d00', color: '#f96d00', fontWeight: 600 }}
+                  >
+                    <FiKey /> {pwdLoading ? 'Updating Password...' : 'Update Password'}
+                  </button>
+                </form>
+              </div>
             </div>
           )}
         </div>
@@ -2205,7 +2354,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                   <button
                     type="button"
                     onClick={() => {
-                      const phone = settings?.contactPhone || settings?.whatsappNumber || '919876543210';
+                      const phone = settings?.contactPhone || settings?.whatsappNumber || '919629182095';
                       const cleanPhone = phone.replace(/[^0-9]/g, '');
                       const msg = `*Booking Request Follow-up - CarBook*\n` +
                         `• *Booking Ref:* ${userPendingForSelectedCar.bookingReference || userPendingForSelectedCar._id?.slice(-6)}\n` +

@@ -431,15 +431,17 @@ async function seed() {
     await Settings.getSettings();
     console.log('⚙️  Default business settings initialized');
 
-    // Create admin user
+    // Create admin user with role 'admin'
     const admin = new Admin({
       username: 'admin',
-      email: 'admin@carbook.com',
-      password: 'admin123',
-      name: 'CarBook Admin'
+      email: 'Shajanshaji111@gmail.com',
+      password: 'Password@123',
+      name: 'A3 Car Rentals Admin',
+      role: 'admin',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
     });
     await admin.save();
-    console.log('👤 Admin created: admin / admin123');
+    console.log('👤 Admin created: admin (Shajanshaji111@gmail.com) / Password@123 [Role: admin]');
 
     // Seed cars
     await Car.insertMany(cars);

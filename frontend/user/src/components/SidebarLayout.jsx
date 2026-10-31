@@ -21,6 +21,29 @@ export default function SidebarLayout({ children }) {
     setMobileOpen(false);
   }, [location.pathname, location.search]);
 
+  // Lock background body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const scrollY = window.scrollY;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+    const prevOverflow = document.body.style.overflow;
+
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      document.body.style.overflow = prevOverflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
+
   const searchParams = new URLSearchParams(location.search);
   const currentTab = searchParams.get('tab') || 'overview';
   const pathname = location.pathname;
@@ -65,12 +88,12 @@ export default function SidebarLayout({ children }) {
   ];
 
   // Derive Current Page Title
-  let pageTitle = 'Customer Dashboard';
-  if (pathname.startsWith('/car/')) pageTitle = 'Vehicle Specification';
-  else if (currentTab === 'overview') pageTitle = 'Customer Dashboard Overview';
-  else if (currentTab === 'bookings') pageTitle = 'My Car Rentals & Agreements';
-  else if (currentTab === 'profile') pageTitle = 'Account Profile & Address';
-  else if (currentTab === 'cars') pageTitle = 'Vehicle Fleet & Reservation';
+  let pageTitle = 'Dashboard';
+  if (pathname.startsWith('/car/')) pageTitle = 'Vehicle Details';
+  else if (currentTab === 'overview') pageTitle = 'Dashboard Overview';
+  else if (currentTab === 'bookings') pageTitle = 'My Bookings';
+  else if (currentTab === 'profile') pageTitle = 'Profile & Address';
+  else if (currentTab === 'cars') pageTitle = 'Vehicle Fleet';
 
   const userInitials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -83,6 +106,7 @@ export default function SidebarLayout({ children }) {
         <div
           className="portal-mobile-backdrop"
           onClick={() => setMobileOpen(false)}
+          onTouchMove={(e) => e.preventDefault()}
         />
       )}
 

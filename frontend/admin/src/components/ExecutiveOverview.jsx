@@ -127,15 +127,11 @@ export default function ExecutiveOverview({
     .filter(b => b.status !== 'cancelled')
     .reduce((sum, b) => sum + (Number(b.totalPrice) || 0), 0);
 
-  // Channels calculation (WhatsApp vs Admin Direct) based on actual collected earnings
+  // Channels calculation (WhatsApp) based on actual collected earnings
   const isAdmin = (b) => b.bookingSource === 'admin';
 
   const whatsappBookingsInScope = filteredBookings.filter(b => !isAdmin(b));
-  const adminBookingsInScope = filteredBookings.filter(isAdmin);
   const whatsappRevenueInScope = whatsappBookingsInScope
-    .filter(b => b.status !== 'cancelled')
-    .reduce((sum, b) => sum + getBookingPaidAmount(b), 0);
-  const adminRevenueInScope = adminBookingsInScope
     .filter(b => b.status !== 'cancelled')
     .reduce((sum, b) => sum + getBookingPaidAmount(b), 0);
 
@@ -461,8 +457,8 @@ export default function ExecutiveOverview({
         </div>
       </div>
 
-      {/* Booking Channel Comparison (WhatsApp vs Admin Direct) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+      {/* Booking Channel (WhatsApp) */}
+      <div style={{ marginBottom: '20px' }}>
         <div 
           onClick={() => onNavigateTab && onNavigateTab('bookings')}
           style={{
@@ -493,39 +489,6 @@ export default function ExecutiveOverview({
           </div>
           <div style={{ fontSize: '11.5px', color: '#15803d' }}>
             {filteredBookings.length > 0 ? `${Math.round((whatsappBookingsInScope.length / filteredBookings.length) * 100)}% of reservations` : 'Direct WhatsApp customer requests'}
-          </div>
-        </div>
-
-        <div 
-          onClick={() => onNavigateTab && onNavigateTab('bookings')}
-          style={{
-            background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
-            border: '1.5px solid #ddd6fe',
-            borderRadius: '14px',
-            padding: '16px 20px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 8px rgba(124, 58, 237, 0.08)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#6d28d9', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              🏢 Admin Direct Bookings
-            </span>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#5b21b6', background: '#ddd6fe', padding: '2px 8px', borderRadius: '12px' }}>
-              {dateRangeLabel}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', margin: '4px 0' }}>
-            <strong style={{ fontSize: '26px', fontWeight: 800, color: '#4c1d95' }}>
-              {adminBookingsInScope.length}
-            </strong>
-            <span style={{ fontSize: '13px', color: '#6d28d9', fontWeight: 600 }}>
-              ₹{adminRevenueInScope.toLocaleString('en-IN')} collected
-            </span>
-          </div>
-          <div style={{ fontSize: '11.5px', color: '#6d28d9' }}>
-            {filteredBookings.length > 0 ? `${Math.round((adminBookingsInScope.length / filteredBookings.length) * 100)}% of reservations` : 'Direct admin counter reservations'}
           </div>
         </div>
       </div>

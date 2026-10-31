@@ -13,7 +13,11 @@ export default function Login() {
   useSeo({
     title: 'Customer Login — A3 Car Rentals',
     description: 'Sign in to your A3 Car Rentals account to track bookings, view car availability, and manage self-drive reservations in Kaliakkavilai.',
-    keywords: 'A3 car rentals login, customer sign in, car hire account Kaliakkavilai'
+    keywords: [
+      'A3 car rentals login',
+      'customer sign in',
+      'car hire account Kaliakkavilai'
+    ]
   });
 
   const { settings } = useSettings();
@@ -59,7 +63,7 @@ export default function Login() {
         password,
         rememberMe
       });
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       navigate('/dashboard?tab=overview');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');

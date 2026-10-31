@@ -37,7 +37,6 @@ export default function ConfirmPassword() {
   const [error, setError] = useState('');
   const [infoMsg, setInfoMsg] = useState('');
   const [maskedContact, setMaskedContact] = useState('');
-  const [devOtp, setDevOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -79,7 +78,6 @@ export default function ConfirmPassword() {
     try {
       const res = await forgotPassword({ email: cleanEmail });
       setMaskedContact(res.data.maskedEmail || cleanEmail);
-      if (res.data.devOtp) setDevOtp(res.data.devOtp);
       setInfoMsg(res.data.message || 'Verification code dispatched to your email.');
       setStep(2);
     } catch (err) {
@@ -282,21 +280,6 @@ export default function ConfirmPassword() {
                   <h1>Enter 6-Digit Code</h1>
                   <p>Enter the OTP sent to <strong>{maskedContact}</strong></p>
                 </div>
-
-                {devOtp && (
-                  <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.82rem', color: '#92400e' }}>
-                      ⚡ <strong>Testing OTP:</strong> {devOtp}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setOtp(devOtp)}
-                      style={{ fontSize: '0.78rem', fontWeight: 800, color: '#f96d00', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
-                    >
-                      Autofill Code
-                    </button>
-                  </div>
-                )}
 
                 <form onSubmit={handleVerifyOtp} className="auth-form" noValidate>
                   <div className="auth-input-group">

@@ -184,7 +184,7 @@ export default function AdminHeader({
   return (
     <header className="admin-top-header">
       {/* Title & Subtitle + Hamburger Toggle */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="admin-header-left-col">
         <button
           type="button"
           className="admin-header-hamburger-btn"
@@ -194,7 +194,7 @@ export default function AdminHeader({
           <FaBars />
         </button>
         <div className="admin-header-title-col">
-          <h1 className="admin-page-title">{title}</h1>
+          <h1 className="admin-page-title" title={title}>{title}</h1>
           <p className="admin-page-subtitle">{subtitle}</p>
         </div>
       </div>
@@ -429,12 +429,12 @@ export default function AdminHeader({
         {(activeTab === 'overview' || activeTab === 'cars') && (
           <button
             type="button"
-            className="btn-admin-primary"
+            className="btn-admin-primary admin-add-vehicle-btn"
             onClick={onAddCar}
             title="Register a new car to the rental fleet"
           >
             <FaPlus size={13} />
-            <span>Add Vehicle</span>
+            <span className="admin-add-vehicle-text">Add Vehicle</span>
           </button>
         )}
 
@@ -444,7 +444,7 @@ export default function AdminHeader({
             <div className="admin-user-avatar-mini">
               {(adminUser?.name || 'Admin')[0].toUpperCase()}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
+            <div className="admin-user-details-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
               <span className="admin-user-name-text">{adminUser?.name || 'Administrator'}</span>
               <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{adminUser?.email || ''}</span>
             </div>
@@ -469,7 +469,7 @@ export default function AdminHeader({
               }}
             >
               <FaSignOutAlt size={11} />
-              <span>Logout</span>
+              <span className="admin-logout-text">Logout</span>
             </button>
           </div>
         ) : (

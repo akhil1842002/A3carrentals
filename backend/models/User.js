@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
   resetOtp: { type: String },
   resetOtpExpires: { type: Date },
   resetToken: { type: String },
+  refreshToken: { type: String, default: '' },
   addresses: [{
     street: { type: String, default: '' },
     city: { type: String, default: '' },

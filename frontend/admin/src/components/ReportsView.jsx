@@ -142,23 +142,16 @@ export default function ReportsView() {
       }, 0);
   }, [filteredBookings]);
 
-  // WhatsApp vs Admin Direct Channels in Scope
+  // WhatsApp Channel in Scope
   const isAdmin = (b) => b.bookingSource === 'admin';
 
   const whatsappBookingsInScope = useMemo(() => filteredBookings.filter(b => !isAdmin(b)), [filteredBookings]);
-  const adminBookingsInScope = useMemo(() => filteredBookings.filter(isAdmin), [filteredBookings]);
 
   const whatsappRevenueInScope = useMemo(() => {
     return whatsappBookingsInScope
       .filter(b => b.status !== 'cancelled')
       .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
   }, [whatsappBookingsInScope]);
-
-  const adminRevenueInScope = useMemo(() => {
-    return adminBookingsInScope
-      .filter(b => b.status !== 'cancelled')
-      .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
-  }, [adminBookingsInScope]);
 
   const completedTripsCount = useMemo(() => filteredBookings.filter(b => b.status === 'completed').length, [filteredBookings]);
   const activeTripsCount = useMemo(() => filteredBookings.filter(b => ['confirmed', 'ongoing', 'driver_assigned'].includes(b.status)).length, [filteredBookings]);
@@ -549,8 +542,8 @@ export default function ReportsView() {
         </div>
       </div>
 
-      {/* Acquisition Channel Breakdown: WhatsApp vs Website */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+      {/* Acquisition Channel: WhatsApp */}
+      <div style={{ marginBottom: '20px' }}>
         <div style={{
           background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
           border: '1.5px solid #bbf7d0',
@@ -576,34 +569,6 @@ export default function ReportsView() {
           </div>
           <div style={{ fontSize: '11.5px', color: '#15803d' }}>
             {filteredBookings.length > 0 ? `${Math.round((whatsappBookingsInScope.length / filteredBookings.length) * 100)}% of total reservations` : 'Direct WhatsApp customer reservations'}
-          </div>
-        </div>
-
-        <div style={{
-          background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
-          border: '1.5px solid #ddd6fe',
-          borderRadius: '14px',
-          padding: '16px 20px',
-          boxShadow: '0 2px 8px rgba(124, 58, 237, 0.08)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#6d28d9', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              🏢 Admin Direct Bookings
-            </span>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#5b21b6', background: '#ddd6fe', padding: '2px 8px', borderRadius: '12px' }}>
-              {dateRangeLabel}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', margin: '4px 0' }}>
-            <strong style={{ fontSize: '26px', fontWeight: 800, color: '#4c1d95' }}>
-              {adminBookingsInScope.length}
-            </strong>
-            <span style={{ fontSize: '13px', color: '#6d28d9', fontWeight: 600 }}>
-              {sym} {Number(adminRevenueInScope).toLocaleString('en-IN')} revenue
-            </span>
-          </div>
-          <div style={{ fontSize: '11.5px', color: '#6d28d9' }}>
-            {filteredBookings.length > 0 ? `${Math.round((adminBookingsInScope.length / filteredBookings.length) * 100)}% of total reservations` : 'Direct admin counter reservations'}
           </div>
         </div>
       </div>
@@ -686,8 +651,8 @@ export default function ReportsView() {
           </span>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: '850px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569', fontWeight: 700 }}>
                 <th style={{ padding: '12px 14px' }}>Booking Ref</th>

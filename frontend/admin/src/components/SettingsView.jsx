@@ -226,7 +226,7 @@ export default function SettingsView({ onSettingsUpdated }) {
                 name="whatsappNumber"
                 value={settings.whatsappNumber}
                 onChange={handleChange}
-                placeholder="e.g. 917397098447 or +91 73970 98447"
+                placeholder="e.g. 919629182095 or +91 96291 82095"
               />
             </div>
           </div>

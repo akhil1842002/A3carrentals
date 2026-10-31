@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { 
   FaCar, FaCalendarAlt, FaUserTie, FaShoppingBag, 
   FaUsers, FaChartBar, FaCog, FaSignOutAlt, FaSignInAlt, FaExternalLinkAlt, 
@@ -20,6 +21,29 @@ export default function AdminSidebar({
 }) {
   const adminName = adminUser?.name || 'Administrator';
   const adminInitials = adminName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AD';
+
+  // Lock background body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const scrollY = window.scrollY;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+    const prevOverflow = document.body.style.overflow;
+
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      document.body.style.overflow = prevOverflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
@@ -89,6 +113,7 @@ export default function AdminSidebar({
         <div
           className="admin-sidebar-backdrop"
           onClick={onCloseMobile}
+          onTouchMove={(e) => e.preventDefault()}
         />
       )}
       <aside className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>

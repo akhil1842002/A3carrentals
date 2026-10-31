@@ -6,30 +6,40 @@ const verifyToken = (req) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) return null;
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.JWT_SECRET || 'carbook_secret_key_2024');
   } catch (err) {
     return null;
   }
 };
 
-// Admin auth middleware (compatible with legacy Admin model & new User with admin/superadmin role)
+// Admin auth middleware (compatible with Admin model & User with admin/superadmin role)
 const adminAuth = (req, res, next) => {
-  const decoded = verifyToken(req);
-  if (!decoded) {
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(401).json({ message: 'Authentication required. No token or token invalid.' });
+  const authHeader = req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+
+  if (token) {
+    const decoded = verifyToken(req);
+    if (!decoded) {
+      return res.status(401).json({ message: 'Session expired or token invalid', tokenExpired: true });
     }
-    // Allow local development / demo access if no token header is attached
-    req.admin = { id: 'admin-dev', role: 'superadmin', name: 'CarBook Super Admin' };
-    req.user = req.admin;
+    // Verify admin/superadmin/staff role
+    const role = decoded.role || (decoded.username ? 'admin' : null);
+    if (!role || !['admin', 'superadmin', 'staff'].includes(role)) {
+      return res.status(403).json({ message: 'Access denied: Administrator privileges required' });
+    }
+    req.admin = decoded;
+    req.user = decoded;
     return next();
   }
-  // If user role exists, verify it's admin or superadmin
-  if (decoded.role && !['admin', 'superadmin', 'staff'].includes(decoded.role)) {
-    return res.status(403).json({ message: 'Access denied: Administrator privileges required' });
+
+  // If no token provided
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(401).json({ message: 'Authentication required. No token provided.' });
   }
-  req.admin = decoded;
-  req.user = decoded;
+
+  // Allow local development / demo access only when no Authorization header is present
+  req.admin = { id: 'admin-dev', role: 'superadmin', name: 'CarBook Super Admin' };
+  req.user = req.admin;
   next();
 };
 

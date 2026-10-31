@@ -11,8 +11,9 @@ import {
 } from 'react-icons/fa';
 
 export default function AdminLoginScreen({ onLogin, error, loading, settings }) {
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState(() => localStorage.getItem('rememberedAdminIdentifier') || '');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('rememberedAdminIdentifier'));
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
@@ -21,7 +22,8 @@ export default function AdminLoginScreen({ onLogin, error, loading, settings }) 
     onLogin({ 
       email: identifier.trim(), 
       username: identifier.trim(), 
-      password 
+      password,
+      rememberMe
     });
   };
 
@@ -104,6 +106,20 @@ export default function AdminLoginScreen({ onLogin, error, loading, settings }) 
                 className="admin-login-input"
               />
             </div>
+          </div>
+
+          {/* Remember Me Option */}
+          <div className="admin-remember-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 4px', userSelect: 'none' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ width: '16px', height: '16px', accentColor: '#2563eb', cursor: 'pointer' }}
+              />
+              <span>Remember me</span>
+            </label>
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>30-day session</span>
           </div>
 
           <button

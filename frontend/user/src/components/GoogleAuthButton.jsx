@@ -104,7 +104,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
         persistAccounts(updated);
       }
 
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       setShowChooser(false);
       if (onSuccess) onSuccess(res.data.user);
     } catch (err) {
@@ -147,7 +147,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
       const updated = [acc, ...accounts.filter(a => a.email.toLowerCase() !== acc.email.toLowerCase())];
       persistAccounts(updated);
 
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       setShowChooser(false);
       if (onSuccess) onSuccess(res.data.user);
     } catch (err) {
@@ -191,7 +191,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
       const updated = [accountObj, ...accounts.filter(a => a.email.toLowerCase() !== accountObj.email.toLowerCase())];
       persistAccounts(updated);
 
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       setShowChooser(false);
       setNewEmail('');
       setNewName('');

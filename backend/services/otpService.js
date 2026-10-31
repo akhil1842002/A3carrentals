@@ -35,7 +35,7 @@ async function sendEmailOtp({ toEmail, otp, name = 'Customer' }) {
     return { sent: false, reason: 'smtp_not_configured' };
   }
 
-  const sender = process.env.SMTP_FROM || `"CarBook Security" <${process.env.SMTP_USER}>`;
+  const sender = process.env.SMTP_FROM || `"A3 Car Rentals Security" <${process.env.SMTP_USER}>`;
 
   const html = `
     <!DOCTYPE html>
@@ -45,7 +45,7 @@ async function sendEmailOtp({ toEmail, otp, name = 'Customer' }) {
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
         .card { max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; padding: 32px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .logo { font-size: 22px; font-weight: 800; color: #f96d00; text-align: center; margin-bottom: 24px; }
+        .logo { font-size: 24px; font-weight: 800; color: #f96d00; text-align: center; margin-bottom: 24px; letter-spacing: -0.5px; }
         .otp-box { background: #fff7ed; border: 2px dashed #f97316; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0; }
         .otp-code { font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #c2410c; }
         .footer { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 24px; line-height: 1.5; }
@@ -53,11 +53,11 @@ async function sendEmailOtp({ toEmail, otp, name = 'Customer' }) {
     </head>
     <body>
       <div class="card">
-        <div class="logo">🚗 CarBook Fleet</div>
+        <div class="logo">🚗 A3 Car Rentals</div>
         <h2 style="margin: 0 0 10px; font-size: 20px; color: #0f172a;">Password Reset Verification</h2>
         <p style="font-size: 14px; color: #475569; line-height: 1.5;">
           Hello <strong>${name}</strong>,<br>
-          We received a request to reset your CarBook account password. Use the single-use verification code below:
+          We received a request to reset your A3 account password. Use the single-use verification code below:
         </p>
         <div class="otp-box">
           <div class="otp-code">${otp}</div>
@@ -67,7 +67,7 @@ async function sendEmailOtp({ toEmail, otp, name = 'Customer' }) {
           If you did not request this password reset, please ignore this email. Your account remains secure.
         </p>
         <div class="footer">
-          &copy; ${new Date().getFullYear()} CarBook Car Rental & Services. All rights reserved.
+          &copy; ${new Date().getFullYear()} A3 Car Rentals & Services. All rights reserved.
         </div>
       </div>
     </body>
@@ -78,14 +78,14 @@ async function sendEmailOtp({ toEmail, otp, name = 'Customer' }) {
     const info = await transporter.sendMail({
       from: sender,
       to: toEmail,
-      subject: `CarBook Security: ${otp} is your verification code`,
-      text: `Your CarBook verification code is ${otp}. Valid for 10 minutes.`,
+      subject: `A3 Car Rentals Security: ${otp} is your verification code`,
+      text: `Your A3 Car Rentals verification code is ${otp}. Valid for 10 minutes.`,
       html
     });
-    console.log(`[CARBOOK EMAIL OTP] Dispatched successfully to ${toEmail}. Message ID: ${info.messageId}`);
+    console.log(`[A3 EMAIL OTP] Dispatched successfully to ${toEmail}. Message ID: ${info.messageId}`);
     return { sent: true, messageId: info.messageId };
   } catch (error) {
-    console.error(`[CARBOOK EMAIL OTP ERROR] Failed to send email:`, error.message);
+    console.error(`[A3 EMAIL OTP ERROR] Failed to send email:`, error.message);
     return { sent: false, error: error.message };
   }
 }
@@ -131,7 +131,7 @@ async function sendSmsOtp({ phoneNumber, otp }) {
       const params = new URLSearchParams({
         To: `+91${tenDigitPhone}`,
         From: twilioFrom,
-        Body: `CarBook: Your verification code is ${otp}. Valid for 10 minutes. Do not share this code.`
+        Body: `A3 Car Rentals: Your verification code is ${otp}. Valid for 10 minutes. Do not share this code.`
       });
 
       const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {

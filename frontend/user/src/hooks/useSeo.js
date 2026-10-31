@@ -42,9 +42,15 @@ export default function useSeo({ title, description, canonical, keywords = [] })
 
     // ── Keywords (append page-specific to global) ─────────────────────────
     const base = 'car rental Kaliakkavilai, self drive cars Marthandam, A3 Car Rentals, car hire Kanyakumari';
-    if (keywords.length > 0) {
-      const existing = document.querySelector('meta[name="keywords"]');
-      if (existing) existing.setAttribute('content', `${base}, ${keywords.join(', ')}`);
+    let keywordList = [];
+    if (Array.isArray(keywords)) {
+      keywordList = keywords.filter(Boolean);
+    } else if (typeof keywords === 'string' && keywords.trim()) {
+      keywordList = keywords.split(',').map(k => k.trim()).filter(Boolean);
+    }
+
+    if (keywordList.length > 0) {
+      setMeta({ name: 'keywords' }, `${base}, ${keywordList.join(', ')}`);
     }
 
     // ── Canonical URL ─────────────────────────────────────────────────────
@@ -61,5 +67,5 @@ export default function useSeo({ title, description, canonical, keywords = [] })
     // ── OG URL ────────────────────────────────────────────────────────────
     setMeta({ property: 'og:url' }, canonical || window.location.href);
 
-  }, [title, description, canonical, keywords]);
+  }, [title, description, canonical, Array.isArray(keywords) ? keywords.join(',') : keywords]);
 }

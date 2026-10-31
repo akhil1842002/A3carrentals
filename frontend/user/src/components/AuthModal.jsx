@@ -59,7 +59,7 @@ export default function AuthModal({
     setLoading(true);
     try {
       const res = await loginUser({ email: cleanEmail, password, rememberMe });
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       if (onSuccess) onSuccess(res.data.user);
       onClose();
     } catch (err) {
@@ -94,7 +94,7 @@ export default function AuthModal({
         setInfoMsg(res.data.message || `A 6-digit code was sent to ${signupEmail}`);
         setSignupOtpStep(2);
       } else {
-        login(res.data.token, res.data.user);
+        login(res.data.token, res.data.user, res.data.refreshToken);
         if (onSuccess) onSuccess(res.data.user);
         onClose();
       }
@@ -119,7 +119,7 @@ export default function AuthModal({
         email: signupEmail.trim().toLowerCase(), 
         otp: cleanOtp 
       });
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.user, res.data.refreshToken);
       if (onSuccess) onSuccess(res.data.user);
       onClose();
     } catch (err) {
@@ -407,15 +407,6 @@ export default function AuthModal({
                   <strong style={{ color: '#0f172a' }}>{signupEmail}</strong>
                 </p>
               </div>
-
-              {devOtp && (
-                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.78rem', color: '#92400e' }}>⚡ Test OTP: {devOtp}</span>
-                  <button type="button" onClick={() => setSignupOtpVal(devOtp)} style={{ background: 'none', border: 'none', color: '#f96d00', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline' }}>
-                    Autofill
-                  </button>
-                </div>
-              )}
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>

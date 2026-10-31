@@ -136,8 +136,8 @@ export default function Home() {
     : carsList.filter(c => (c.vehicleType || '').toLowerCase() === selectedCategory.toLowerCase());
 
   const brandName = settings?.businessName || 'A3 Car rental';
-  const phoneDisplay = settings?.supportPhone || '+91 73970 98447';
-  const whatsappNumber = (settings?.whatsappNumber || '917397098447').replace(/[^0-9]/g, '');
+  const phoneDisplay = settings?.supportPhone || '+91 96291 82095';
+  const whatsappNumber = (settings?.whatsappNumber || '919629182095').replace(/[^0-9]/g, '');
 
   return (
     <div className="home-page">

@@ -20,6 +20,7 @@ import ConfirmModal from './components/ConfirmModal';
 import {
   login as apiLogin,
   getMe,
+  logoutAdmin,
   getCars,
   getCarStats,
   createCar,
@@ -142,19 +143,36 @@ export default function App() {
   // Filters
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
+  // Listen for session expiry from axios refresh interceptor
+  useEffect(() => {
+    const onAuthExpired = () => {
+      setIsAuthenticated(false);
+      setAdminUser(null);
+      setAuthError('Your session has expired. Please sign in again.');
+    };
+    window.addEventListener('admin:auth-expired', onAuthExpired);
+    return () => window.removeEventListener('admin:auth-expired', onAuthExpired);
+  }, []);
+
   // Check auth status
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
-    if (token) {
+    const refreshToken = localStorage.getItem('adminRefreshToken');
+    if (token || refreshToken) {
       getMe()
         .then(res => {
           const user = res.data?.admin || res.data;
+          const role = user?.role || 'admin';
+          if (!['admin', 'superadmin', 'staff'].includes(role)) {
+            throw new Error('Access denied: Administrator role required');
+          }
           setAdminUser(user);
           localStorage.setItem('adminUser', JSON.stringify(user));
           setIsAuthenticated(true);
         })
         .catch(() => {
           localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminRefreshToken');
           localStorage.removeItem('adminUser');
           setIsAuthenticated(false);
           setAdminUser(null);
@@ -239,26 +257,52 @@ export default function App() {
       const payload = {
         username: credentials.email || credentials.username,
         email: credentials.email || credentials.username,
-        password: credentials.password
+        password: credentials.password,
+        rememberMe: !!credentials.rememberMe
       };
       const res = await apiLogin(payload);
       const token = res.data.token;
+      const refreshToken = res.data.refreshToken;
       const user = res.data.admin || res.data;
+
+      // Role check: ensure user possesses an admin/superadmin/staff role
+      const role = user?.role || 'admin';
+      if (!['admin', 'superadmin', 'staff'].includes(role)) {
+        throw new Error('Access denied: You do not possess administrator credentials to access this portal.');
+      }
+
       localStorage.setItem('adminToken', token);
+      if (refreshToken) {
+        localStorage.setItem('adminRefreshToken', refreshToken);
+      }
       localStorage.setItem('adminUser', JSON.stringify(user));
+
+      // Handle Remember Me identifier storage
+      const identifier = credentials.email || credentials.username;
+      if (credentials.rememberMe && identifier) {
+        localStorage.setItem('rememberedAdminIdentifier', identifier);
+      } else {
+        localStorage.removeItem('rememberedAdminIdentifier');
+      }
+
       setAdminUser(user);
       setIsAuthenticated(true);
       setLoginModalOpen(false);
       fetchData();
     } catch (err) {
-      setAuthError(err.response?.data?.message || 'Invalid email or password');
+      setAuthError(err.response?.data?.message || err.message || 'Invalid email or password');
     } finally {
       setAuthLoading(false);
     }
   };
 
   const handleLogout = () => {
+    const rfToken = localStorage.getItem('adminRefreshToken');
+    if (rfToken) {
+      logoutAdmin(rfToken).catch(() => {});
+    }
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminRefreshToken');
     localStorage.removeItem('adminUser');
     setIsAuthenticated(false);
     setAdminUser(null);
@@ -540,7 +584,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1', justifyContent: 'flex-end', minWidth: '320px' }}>
+                <div className="fleet-controls-right">
                   <select
                     className="fleet-brand-select"
                     value={carBrandFilter}

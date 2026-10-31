@@ -244,7 +244,7 @@ export default function About() {
                   <FiNavigation size={13} /> Get Directions
                 </a>
                 <a
-                  href={`tel:${(settings?.supportPhone || '+91 73970 98447').replace(/[^0-9+]/g, '')}`}
+                  href={`tel:${(settings?.supportPhone || '+91 96291 82095').replace(/[^0-9+]/g, '')}`}
                   className="btn"
                   style={{
                     display: 'inline-flex',
