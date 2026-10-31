@@ -197,7 +197,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Please enter a valid email address' });
     }
 
-    const user = await User.findOne({ email: userEmail });
+    const escaped = userEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const user = await User.findOne({
+      $or: [
+        { email: userEmail },
+        { email: new RegExp(`^${escaped}$`, 'i') }
+      ]
+    });
     if (!user) {
       return res.status(400).json({ message: 'No registered account found with this email address' });
     }

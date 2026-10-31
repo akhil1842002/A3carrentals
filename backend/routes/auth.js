@@ -17,9 +17,14 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email/username and password are required' });
     }
 
-    // 1. Look up in Admin collection
+    const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const caseRegex = new RegExp(`^${escaped}$`, 'i');
+
+    // 1. Look up in Admin collection (case-insensitive for username & email)
     let account = await Admin.findOne({
       $or: [
+        { email: caseRegex },
+        { username: caseRegex },
         { username: identifier },
         { email: identifier.toLowerCase() },
         { username: identifier.toLowerCase() }
@@ -29,7 +34,7 @@ router.post('/login', async (req, res) => {
     // Fallback: check User collection if role is admin/superadmin/staff
     if (!account) {
       account = await User.findOne({
-        email: identifier.toLowerCase(),
+        email: caseRegex,
         role: { $in: ALLOWED_ADMIN_ROLES }
       });
     }
