@@ -31,8 +31,11 @@ app.use('/api/customers', require('./routes/customers'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/notifications', require('./routes/notifications'));
 
-// Health check
-app.get('/api/health', (req, res) => {
+// Health checks & keep-alive endpoints
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'A3 Car Rentals API is active', timestamp: new Date().toISOString() });
+});
+app.get(['/health', '/api/health'], (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
