@@ -14,43 +14,28 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
   const [newName, setNewName] = useState('');
   const [formError, setFormError] = useState('');
 
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '964844492232-2jt219o5q6v032p4bp5f9cnopd3cnghu.apps.googleusercontent.com';
 
-  // Load saved Google accounts from localStorage
+  // Load saved Google accounts from localStorage (strictly local to this specific device)
   const [accounts, setAccounts] = useState(() => {
     try {
       const saved = localStorage.getItem('cb_saved_google_accounts');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-      
-      // Seed with last active user if available so the user never has to re-type
-      const lastUser = localStorage.getItem('carbook_user');
-      if (lastUser) {
-        const parsed = JSON.parse(lastUser);
-        if (parsed.email) {
-          const initialAccount = {
-            name: parsed.name || 'Akhil R',
-            email: parsed.email,
-            picture: parsed.avatar || '',
-            googleId: parsed.googleId || 'g_' + Math.abs(parsed.email.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0))
-          };
-          localStorage.setItem('cb_saved_google_accounts', JSON.stringify([initialAccount]));
-          return [initialAccount];
+        if (Array.isArray(parsed)) {
+          // Clean out any legacy demo/seeded account
+          const cleaned = parsed.filter(a => a && a.googleId !== 'g_akhil_primary' && a.email !== 'akhil1842002@gmail.com');
+          if (cleaned.length !== parsed.length) {
+            localStorage.setItem('cb_saved_google_accounts', JSON.stringify(cleaned));
+          }
+          if (cleaned.length > 0) return cleaned;
         }
       }
     } catch (e) {
       // ignore parse errors
     }
-    return [
-      {
-        name: 'Akhil R',
-        email: 'akhil1842002@gmail.com',
-        picture: '',
-        googleId: 'g_akhil_primary'
-      }
-    ];
+    // New devices start with no remembered accounts - never hardcode demo accounts
+    return [];
   });
 
   // Save accounts helper
@@ -504,7 +489,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Akhil R"
+                    placeholder="e.g. Your Name"
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
                     style={{
