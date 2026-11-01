@@ -49,7 +49,22 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
   };
 
   useEffect(() => {
-    if (!googleClientId) return;
+    const cleanClientId = (googleClientId || '').trim();
+    if (!cleanClientId) return;
+
+    const initGsi = () => {
+      if (window.google?.accounts?.id) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: cleanClientId,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false
+          });
+        } catch (e) {
+          console.warn('Google Identity Services init warning:', e);
+        }
+      }
+    };
 
     // Load official Google Identity Services script dynamically
     const scriptId = 'google-jssdk';
@@ -59,16 +74,10 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
-      script.onload = () => {
-        if (window.google?.accounts?.id) {
-          window.google.accounts.id.initialize({
-            client_id: googleClientId,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false
-          });
-        }
-      };
+      script.onload = initGsi;
       document.body.appendChild(script);
+    } else {
+      initGsi();
     }
   }, [googleClientId]);
 
@@ -100,17 +109,16 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
   };
 
   const handleButtonClick = () => {
-    // If real Google Client ID is configured and ready, try Google One Tap
-    if (googleClientId && window.google?.accounts?.id) {
+    // If any passive One-Tap was open, cancel it to avoid collision with modal
+    if (window.google?.accounts?.id) {
       try {
-        window.google.accounts.id.prompt();
-        return;
+        window.google.accounts.id.cancel();
       } catch (e) {
-        console.warn('Google prompt fallback:', e);
+        // ignore
       }
     }
 
-    // Open authentic Google Account Chooser
+    // Always immediately open the Google Account Chooser / Sign-In modal
     setViewMode(accounts.length > 0 ? 'list' : 'add_new');
     setFormError('');
     setShowChooser(true);
@@ -249,7 +257,7 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 99999,
+            zIndex: 100005,
             padding: '16px',
             animation: 'fadeIn 0.15s ease'
           }}
@@ -264,6 +272,8 @@ export default function GoogleAuthButton({ onSuccess, onError, text = 'Continue 
               padding: '32px 28px 24px',
               boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
               position: 'relative',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
             }}
           >
