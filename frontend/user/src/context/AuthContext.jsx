@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { getMe, logoutUserApi } from '../api';
+import { getMe, logoutUserApi, googleLogin } from '../api';
 
 const defaultAuthValue = {
   user: null,
@@ -27,6 +27,38 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    // Check if returning from Google OAuth redirect (hash contains access_token)
+    if (window.location.hash && window.location.hash.includes('access_token=')) {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      if (accessToken) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        })
+          .then(res => res.json())
+          .then(async (profile) => {
+            if (profile?.email) {
+              const res = await googleLogin({
+                email: profile.email.toLowerCase(),
+                name: profile.name || profile.email.split('@')[0],
+                picture: profile.picture || '',
+                googleId: profile.sub || ('g_' + Date.now())
+              });
+              login(res.data.token, res.data.user, res.data.refreshToken);
+              window.location.href = '/dashboard?tab=overview';
+            } else {
+              setLoading(false);
+            }
+          })
+          .catch((e) => {
+            console.error('Google OAuth hash login failed:', e);
+            setLoading(false);
+          });
+        return;
+      }
+    }
+
     const token = localStorage.getItem('carbook_token');
     const refreshToken = localStorage.getItem('carbook_refresh_token');
     if (token || refreshToken) {
