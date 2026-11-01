@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard/
 Disallow: /api/
 
-Sitemap: https://a3carrentals.in/sitemap.xml
+Sitemap: https://www.a3carrentals.in/sitemap.xml
