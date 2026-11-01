@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { 
-  FaCar, FaCalendarAlt, FaUserTie, FaShoppingBag, 
-  FaUsers, FaChartBar, FaCog, FaSignOutAlt, FaSignInAlt, FaExternalLinkAlt, 
+import {
+  FaCar, FaCalendarAlt, FaUserTie, FaShoppingBag,
+  FaUsers, FaChartBar, FaCog, FaSignOutAlt, FaSignInAlt, FaExternalLinkAlt,
   FaShieldAlt, FaChevronRight, FaDesktop, FaTimes, FaSlidersH
 } from 'react-icons/fa';
 import { FiDisc, FiGrid } from 'react-icons/fi';
@@ -176,8 +176,8 @@ export default function AdminSidebar({
           </nav>
         </div>
 
-      {/* Quick Link: View Customer Site */}
-      <div className="admin-sidebar-ext-link">
+        {/* Quick Link: View Customer Site */}
+        {/* <div className="admin-sidebar-ext-link">
         <a
           href="http://localhost:5173"
           target="_blank"
@@ -191,33 +191,33 @@ export default function AdminSidebar({
           </div>
           <FaExternalLinkAlt size={11} />
         </a>
-      </div>
+      </div> */}
 
-      {/* Sign Out / Sign In Button */}
-      <div className="admin-sidebar-footer">
-        {isAuthenticated ? (
-          <button
-            type="button"
-            className="admin-logout-btn"
-            onClick={onLogout}
-            title="Sign out of Admin Dashboard"
-          >
-            <FaSignOutAlt size={14} />
-            <span>Sign Out Admin</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="admin-login-sidebar-btn"
-            onClick={onOpenLogin}
-            title="Authenticate as Super Admin"
-          >
-            <FaSignInAlt size={14} />
-            <span>Sign In as Admin</span>
-          </button>
-        )}
-      </div>
-    </aside>
-  </>
+        {/* Sign Out / Sign In Button */}
+        <div className="admin-sidebar-footer">
+          {isAuthenticated ? (
+            <button
+              type="button"
+              className="admin-logout-btn"
+              onClick={onLogout}
+              title="Sign out of Admin Dashboard"
+            >
+              <FaSignOutAlt size={14} />
+              <span>Sign Out Admin</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="admin-login-sidebar-btn"
+              onClick={onOpenLogin}
+              title="Authenticate as Super Admin"
+            >
+              <FaSignInAlt size={14} />
+              <span>Sign In as Admin</span>
+            </button>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }

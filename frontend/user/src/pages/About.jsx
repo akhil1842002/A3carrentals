@@ -24,10 +24,20 @@ const DEFAULT_COMPANY_ADDRESS = 'Near by Jayamatha Hospital, Opp. Ration Shop, K
 
 export default function About() {
   useSeo({
-    title: 'About A3 Car Rentals — Kaliakkavilai, Kanyakumari',
-    description: 'A3 Car Rentals is the leading car rental hub near Jayamatha Hospital, Kaliakkavilai (Panamkalai - 629153). Serving Marthandam, Parasala, Kuzhithurai & Trivandrum since day one. Visit us or call now.',
+    title: 'Best Car Rental Service in Kaliakkavilai & Anywhere in India — About A3 Car rental',
+    description: 'A3 Car rental is the top-rated 4.8★ car rental hub near Jayamatha Hospital, Kaliakkavilai (Panamkalai - 629153). Serving Marthandam, Parasala, Kuzhithurai, Kanyakumari, Trivandrum & Anywhere in India with Self-Drive and Acting Drivers. Open 24/7.',
     canonical: 'https://a3carrentals.in/about',
-    keywords: ['A3 Car Rental Kaliakkavilai', 'car rental near Jayamatha Hospital', 'Panamkalai car hire', 'Kuzhithurai car rental', 'car rental Parasala', 'cab service Kaliakkavilai']
+    keywords: [
+      'best car rental service in Kaliakkavilai',
+      'car rental anywhere in India',
+      'A3 Car rental Kaliakkavilai',
+      'car rental near Jayamatha Hospital',
+      'Panamkalai car hire',
+      'acting driver Kaliakkavilai',
+      'self drive cars Marthandam',
+      'Kuzhithurai car rental',
+      'Innova Crysta rental Kaliakkavilai'
+    ]
   });
   const { isAuthenticated } = useAuth();
   const { settings } = useSettings();
@@ -53,7 +63,7 @@ export default function About() {
             </div>
             <h1>About {settings?.businessName || 'A3 Car rental'}</h1>
             <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', marginTop: '8px' }}>
-              Redefining automotive rentals and chauffeur travel with luxury, transparency, and safety across India.
+              Redefining self-drive car rentals and verified acting driver services across Kaliakkavilai, Kanyakumari, Trivandrum, and anywhere in India.
             </p>
           </div>
         </div>
@@ -71,20 +81,20 @@ export default function About() {
             </div>
             <div className="about-content">
               <span className="subheading">Our Commitment</span>
-              <h2>{lp.aboutTitle || 'Premium Vehicles, Effortless Journeys'}</h2>
+              <h2>{lp.aboutTitle || 'Your Trusted Mobility Partner in Kaliakkavilai & Anywhere in India'}</h2>
               <p>
-                {lp.aboutDesc || 'Founded with a mission to bring world-class mobility to Kaliakkavilai and surrounding regions, A3 Car Rentals offers a meticulously curated fleet of top-tier sedans, rugged SUVs, executive luxury vehicles, and economical family cars.'}
+                {lp.aboutDesc || 'Founded with a mission to bring world-class mobility to Kaliakkavilai and surrounding regions, A3 Car rental offers a meticulously curated fleet of 5-seater sedans, 7-9 seater SUVs (Innova Crysta, Fortuner, Thar), executive luxury vehicles, and economical family cars. Available for Self-Drive or with experienced, police-verified Acting Drivers with doorstep handover anywhere in India.'}
               </p>
               <p>
                 Every vehicle in our fleet undergoes rigorous multi-point mechanical inspection and complete interior 
                 sanitization before being handed over. Whether choosing self-drive freedom or traveling with our professional 
-                verified drivers, you are guaranteed peak comfort, reliability, and peace of mind.
+                verified drivers, you are guaranteed peak comfort, reliability, and peace of mind with 4.8★ Google-rated service.
               </p>
               <ul className="about-list">
-                <li><FiCheck /> <strong>{lp.aboutFeature1 || '24/7 dedicated customer assistance & roadside support'}</strong></li>
-                <li><FiCheck /> <strong>{lp.aboutFeature2 || 'Over 50+ premium vehicles across sports, luxury, and SUV categories'}</strong></li>
-                <li><FiCheck /> <strong>{lp.aboutFeature3 || 'Easy online booking with real-time availability'}</strong></li>
-                <li><FiCheck /> <strong>{lp.aboutFeature4 || 'Transparent pricing with no hidden charges'}</strong></li>
+                <li><FiCheck /> <strong>{lp.aboutFeature1 || '24/7 dedicated customer assistance & emergency roadside support'}</strong></li>
+                <li><FiCheck /> <strong>{lp.aboutFeature2 || 'Over 50+ premium vehicles across 5-seater sedans, 7-9 seater SUVs & luxury fleet'}</strong></li>
+                <li><FiCheck /> <strong>{lp.aboutFeature3 || 'Easy online & WhatsApp booking with real-time fleet availability'}</strong></li>
+                <li><FiCheck /> <strong>{lp.aboutFeature4 || 'Transparent pricing with zero hidden charges and no deposit deductions'}</strong></li>
               </ul>
             </div>
           </div>
@@ -209,7 +219,7 @@ export default function About() {
                   </span>
                   <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a', display: 'inline-block' }}></span>
-                    Open Today ({settings?.operatingHours || '8:00 AM – 10:00 PM'})
+                    {settings?.operatingHours || 'Open 24 Hours • 7 Days a Week'}
                   </span>
                 </div>
                 <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>

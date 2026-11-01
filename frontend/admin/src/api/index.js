@@ -147,6 +147,7 @@ export const getNotifications = (params) => API.get('/notifications', { params }
 export const markNotificationRead = (id) => API.put(`/notifications/${id}/read`);
 export const markAllNotificationsRead = () => API.put('/notifications/read-all');
 export const deleteNotification = (id) => API.delete(`/notifications/${id}`);
+export const clearAllNotifications = (params) => API.delete('/notifications/clear/all', { params });
 
 // Drivers
 export const getDrivers = () => API.get('/drivers');

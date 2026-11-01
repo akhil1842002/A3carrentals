@@ -388,6 +388,18 @@ export default function Dashboard() {
     return () => { isMounted = false; };
   }, [selectedCar, pickupDate, dropoffDate, withDriver, rentalPeriodType]);
 
+  // Lock background body scroll when any modal is open
+  useEffect(() => {
+    if (showModal || showDetailModal || selectedInvoiceBooking) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showModal, showDetailModal, selectedInvoiceBooking]);
+
   const handleBook = async (e) => {
     e.preventDefault();
     const errs = {};
@@ -2327,8 +2339,8 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
 
       {/* Book Car via WhatsApp Modal with Driver Selection & Live Itemized Breakdown */}
       {showModal && selectedCar && (
-        <div className="modal-backdrop" onClick={() => setShowModal(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999 }}>
-          <div className="booking-modal whatsapp-booking-modal" onClick={(e) => e.stopPropagation()} style={{ margin: 'auto' }}>
+        <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+          <div className="booking-modal whatsapp-booking-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Close modal">
               <FiX size={20} />
             </button>
@@ -2602,7 +2614,7 @@ Hello Admin, I have submitted this pending booking request. Please verify and ap
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>
                     Drive Option: Do you need a driver?
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
                     <button
                       type="button"
                       onClick={() => setWithDriver(false)}

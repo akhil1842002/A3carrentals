@@ -13,10 +13,18 @@ const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid'];
 
 export default function Cars() {
   useSeo({
-    title: 'Browse Available Rental Cars in Kaliakkavilai',
-    description: 'Explore A3 Car Rentals verified fleet — Sedans, SUVs, MUVs & hatchbacks available for self-drive or with acting driver in Kaliakkavilai, Marthandam & Nagercoil. Filter by price, type & fuel.',
+    title: 'Best Car Rental Fleet in Kaliakkavilai & Anywhere in India',
+    description: 'Explore A3 Car rental verified fleet — 5-seater sedans, 7-9 seater Innova Crysta, Fortuner & Thar available for self-drive or with professional acting drivers in Kaliakkavilai, Marthandam & Anywhere in India. 24/7 service.',
     canonical: 'https://a3carrentals.in/cars',
-    keywords: ['self drive cars Kaliakkavilai', 'SUV rental Marthandam', 'sedan hire Nagercoil', 'diesel car rental Kanyakumari', 'affordable car rent Parasala']
+    keywords: [
+      'best car rental service in Kaliakkavilai',
+      'car rental anywhere in India',
+      'self drive cars Kaliakkavilai',
+      'SUV rental Marthandam',
+      'Innova Crysta hire Kaliakkavilai',
+      'acting driver Kanyakumari',
+      'car hire near Jayamatha Hospital'
+    ]
   });
   const { settings } = useSettings();
   const [cars, setCars] = useState([]);

@@ -18,6 +18,7 @@ import {
 import { FaCar } from 'react-icons/fa';
 import { registerUser, verifySignupOtp, resendSignupOtp } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { renderBrandName } from '../utils/format';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 import useSeo from '../hooks/useSeo';
@@ -210,9 +211,9 @@ export default function Signup() {
           <div className="auth-left-content">
             <div className="auth-logo">
               <FaCar size={32} />
-              <span>{renderBrandName(settings?.businessName || 'CarBook')}</span>
+              <span>{renderBrandName(settings?.businessName || 'A3 Car rental')}</span>
             </div>
-            <h2>Join {settings?.businessName || 'CarBook'} Today</h2>
+            <h2>Join {settings?.businessName || 'A3 Car rental'} Today</h2>
             <p>Create your account in seconds to browse real-time available cars and book your next drive with ease.</p>
             
             <div className="auth-features">
@@ -253,7 +254,7 @@ export default function Signup() {
                   <FiCheckCircle size={56} />
                 </div>
                 <h2>Account Created! 🎉</h2>
-                <p>Welcome to {settings?.businessName || 'CarBook'}, <strong>{name}</strong>! Your account has been verified and created successfully.</p>
+                <p>Welcome to {settings?.businessName || 'A3 Car rental'}, <strong>{name}</strong>! Your account has been verified and created successfully.</p>
                 <div className="auth-success-spinner">
                   <div className="auth-btn-spinner" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }}></div>
                   <span>Redirecting to your car booking dashboard...</span>

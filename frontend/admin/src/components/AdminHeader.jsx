@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { 
   FaPlus, FaSignOutAlt, FaShieldAlt, FaCircle, 
   FaClock, FaBars, FaBell, FaCheckDouble, FaCalendarCheck, 
-  FaDollarSign, FaExclamationTriangle, FaTimesCircle, FaCheckCircle
+  FaDollarSign, FaExclamationTriangle, FaTimesCircle, FaCheckCircle, FaTrash
 } from 'react-icons/fa';
-import { getNotifications, markNotificationRead, markAllNotificationsRead } from '../api';
+import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification, clearAllNotifications } from '../api';
+import ConfirmModal from './ConfirmModal';
 
 export default function AdminHeader({
   activeTab,
@@ -23,6 +24,18 @@ export default function AdminHeader({
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef(null);
+
+  // Custom Confirmation Dialog State
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    variant: 'danger',
+    loading: false,
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     const update = () => {
@@ -75,6 +88,66 @@ export default function AdminHeader({
     } catch (err) {
       console.error('Failed to mark all notifications read:', err);
     }
+  };
+
+  const handleDeleteNotification = (e, notif) => {
+    e.stopPropagation();
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Notification?',
+      message: `Are you sure you want to remove "${notif.title || 'this notification'}"?`,
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        try {
+          const target = notifications.find(n => n._id === notif._id);
+          setNotifications(prev => prev.filter(n => n._id !== notif._id));
+          if (target && !target.read) {
+            setUnreadCount(prev => Math.max(0, prev - 1));
+          }
+          await deleteNotification(notif._id);
+        } catch (err) {
+          console.error('Failed to delete notification:', err);
+          fetchNotifs();
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        }
+      }
+    });
+  };
+
+  const handleClearAllNotifications = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Clear All Notifications?',
+      message: `Are you sure you want to permanently delete all ${notifications.length} notification${notifications.length > 1 ? 's' : ''}? This action cannot be undone.`,
+      confirmText: 'Yes, Clear All',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      loading: false,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, loading: true }));
+        const currentNotifs = [...notifications];
+        setNotifications([]);
+        setUnreadCount(0);
+        try {
+          await clearAllNotifications();
+        } catch (err) {
+          // Graceful fallback if backend route not reloaded yet
+          try {
+            await Promise.all(currentNotifs.map(n => deleteNotification(n._id).catch(() => {})));
+          } catch (fallbackErr) {
+            console.error('Failed to clear notifications:', fallbackErr);
+            fetchNotifs();
+          }
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isOpen: false, loading: false }));
+        }
+      }
+    });
   };
 
   const handleNotificationClick = async (notif) => {
@@ -307,26 +380,48 @@ export default function AdminHeader({
                       </span>
                     )}
                   </div>
-                  {unreadCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleMarkAllRead}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#f96d00',
-                        fontSize: '11.5px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                      title="Mark all notifications as read"
-                    >
-                      <FaCheckDouble size={11} /> Mark all read
-                    </button>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {unreadCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleMarkAllRead}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#0284c7',
+                          fontSize: '11.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        title="Mark all notifications as read"
+                      >
+                        <FaCheckDouble size={11} /> Mark read
+                      </button>
+                    )}
+                    {notifications.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleClearAllNotifications}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#ef4444',
+                          fontSize: '11.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        title="Delete all notifications"
+                      >
+                        <FaTrash size={10} /> Clear all
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Popover Notifications List */}
@@ -335,7 +430,7 @@ export default function AdminHeader({
                     <div style={{ textAlign: 'center', padding: '36px 20px', color: '#94a3b8' }}>
                       <FaBell size={32} style={{ marginBottom: '8px', opacity: 0.4 }} />
                       <div style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>All caught up!</div>
-                      <div style={{ fontSize: '11.5px', marginTop: '2px' }}>No new notifications.</div>
+                      <div style={{ fontSize: '11.5px', marginTop: '2px' }}>No notifications to show.</div>
                     </div>
                   ) : (
                     notifications.map(notif => (
@@ -376,9 +471,40 @@ export default function AdminHeader({
                             <strong style={{ fontSize: '12.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {notif.title}
                             </strong>
-                            <span style={{ fontSize: '10px', color: '#94a3b8', flexShrink: 0 }}>
-                              {formatRelativeTime(notif.createdAt)}
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                              <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                                {formatRelativeTime(notif.createdAt)}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteNotification(e, notif)}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  color: '#94a3b8',
+                                  padding: '2px 4px',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={e => {
+                                  e.stopPropagation();
+                                  e.currentTarget.style.color = '#ef4444';
+                                  e.currentTarget.style.background = '#fee2e2';
+                                }}
+                                onMouseLeave={e => {
+                                  e.stopPropagation();
+                                  e.currentTarget.style.color = '#94a3b8';
+                                  e.currentTarget.style.background = 'transparent';
+                                }}
+                                title="Delete this notification"
+                              >
+                                <FaTrash size={10} />
+                              </button>
+                            </div>
                           </div>
                           <p style={{ margin: '2px 0 4px', fontSize: '11.5px', color: '#475569', lineHeight: 1.4 }}>
                             {notif.message}
@@ -483,6 +609,12 @@ export default function AdminHeader({
           </button>
         )}
       </div>
+
+      {/* Custom Confirmation / Alert Dialog */}
+      <ConfirmModal
+        {...confirmModal}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
     </header>
   );
 }

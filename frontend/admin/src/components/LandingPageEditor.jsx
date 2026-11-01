@@ -14,9 +14,9 @@ import { getSettings, updateLandingPage, updateEventOffer, getReviews, deleteRev
 import { formatDate } from '../utils/format';
 
 const DEFAULT_LANDING_DATA = {
-  heroBadge: '🚗 Self-Drive & Chauffeur Car Rentals',
-  heroTitle: 'Fast & Easy Way To Rent A Car',
-  heroSubtitle: 'Explore our curated fleet of luxury sedans, rugged SUVs, and high-performance supercars. Sign up or log in to browse, reserve, and manage your vehicle rentals seamlessly.',
+  heroBadge: '🚗 Best Self-Drive & Acting Driver Car Rentals in Kaliakkavilai & Anywhere in India',
+  heroTitle: 'Best Car Rental Service in Kaliakkavilai, Marthandam & Anywhere in India',
+  heroSubtitle: 'Fast & Easy Way To Rent A Car. Explore our curated fleet of luxury sedans, 7-9 seater SUVs (Innova Crysta, Fortuner, Thar), and budget family cars. Available for Self-Drive or with experienced Acting Drivers. Doorstep handover near Jayamatha Hospital, Trivandrum Airport & Anywhere in India.',
   heroBgImage: '/images/bg_1.jpg',
   heroCtaText: 'Get Started',
 
@@ -28,7 +28,7 @@ const DEFAULT_LANDING_DATA = {
   // Why Choose Us Section
   whyChooseSubheading: 'OUR COMMITMENT',
   whyChooseTitle: 'Why Choose A3 Car rental?',
-  whyChooseSubtitle: 'Top-rated car rental and acting driver service across Kaliakkavillai, Kanyakumari, and Trivandrum.',
+  whyChooseSubtitle: 'Top-rated 4.8★ car rental and acting driver service across Kaliakkavillai, Kanyakumari, Trivandrum, and anywhere in India.',
   whyFeature1Title: 'Car + Professional Acting Driver',
   whyFeature1Desc: 'Need someone else to drive? You can rent any car from our fleet with an experienced, polite, police-verified acting driver for local trips, weddings, or long highway journeys.',
   whyFeature2Title: 'Transparent Pricing & No Hidden Fees',
@@ -38,7 +38,7 @@ const DEFAULT_LANDING_DATA = {
   whyFeature4Title: 'Clean, Sanitized & Maintained Fleet',
   whyFeature4Desc: 'Every vehicle is thoroughly vacuumed, washed, safety-checked, and highway-tested prior to handover for worry-free driving.',
   whyFeature5Title: '24/7 Support & Roadside Help',
-  whyFeature5Desc: 'Round-the-clock emergency assistance, tyre support, and phone concierge available across Tamil Nadu and Kerala.',
+  whyFeature5Desc: 'Round-the-clock emergency assistance, tyre support, and phone concierge available across Tamil Nadu, Kerala, and anywhere in India.',
   whyFeature6Title: 'Instant Online Booking',
   whyFeature6Desc: 'Sign up in minutes to access our verified fleet, book self-drive or acting driver rides, and track reservations in real-time.',
 
@@ -70,15 +70,15 @@ const DEFAULT_LANDING_DATA = {
 
   aboutBadgeYears: '10+',
   aboutBadgeText: 'Years of Excellence',
-  aboutTitle: 'Your Premium Mobility Partner',
-  aboutDesc: 'We provide premium car rentals for all your driving requirements. Whether you need a sleek sports car for the weekend, a rugged SUV for an expedition, or a comfortable sedan for your daily commute — CarBook has you covered.',
+  aboutTitle: 'Your Trusted Mobility Partner in Kaliakkavilai & Anywhere in India',
+  aboutDesc: 'We provide premium car rentals for all your driving requirements across Kaliakkavilai, Kanyakumari, and anywhere in India. Whether you need a 7-seater Innova Crysta for a family trip, a comfortable Swift Dzire for daily commute, or an acting driver for outstation highways — A3 Car rental has you covered.',
   aboutFeature1: 'Rent for self-drive or with a verified professional acting driver',
-  aboutFeature2: 'Over 50+ premium vehicles across sports, luxury, and SUV categories',
-  aboutFeature3: 'Easy online booking with real-time availability',
+  aboutFeature2: 'Over 50+ premium vehicles across 5-seater sedans, 7-9 seater SUVs & luxury fleet',
+  aboutFeature3: 'Easy online & WhatsApp booking with real-time fleet availability',
   aboutFeature4: 'Transparent pricing with zero hidden security deposit deductions',
   aboutImage: '/images/about.jpg',
   mainHubAddress: 'Opp. Ration Shop, Near Jayamatha Hospital, Kaliakkavillai, Panamkalai - 629153',
-  deliveryCoverage: 'Marthandam • Nagercoil • Kanyakumari • Trivandrum (TRV) Airport • Kuzhithurai',
+  deliveryCoverage: 'Kaliakkavilai • Marthandam • Kuzhithurai • Parasala • Nagercoil • Kanyakumari • Trivandrum (TRV) Airport • Doorstep Anywhere in India',
 
   // Rent Car with Professional Acting Driver Section
   actingDriverEnabled: true,

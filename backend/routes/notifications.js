@@ -55,6 +55,29 @@ router.put('/read-all', adminAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/notifications/clear/all or DELETE /api/notifications - Clear all notifications
+router.delete('/clear/all', adminAuth, async (req, res) => {
+  try {
+    const filter = req.query.readOnly === 'true' ? { read: true } : {};
+    await Notification.deleteMany(filter);
+    const unreadCount = await Notification.countDocuments({ read: false });
+    res.json({ message: 'Notifications cleared successfully', unreadCount });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/', adminAuth, async (req, res) => {
+  try {
+    const filter = req.query.readOnly === 'true' ? { read: true } : {};
+    await Notification.deleteMany(filter);
+    const unreadCount = await Notification.countDocuments({ read: false });
+    res.json({ message: 'Notifications cleared successfully', unreadCount });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // DELETE /api/notifications/:id - Delete single notification
 router.delete('/:id', adminAuth, async (req, res) => {
   try {

@@ -8,10 +8,18 @@ import useSeo from '../hooks/useSeo';
 
 export default function Contact() {
   useSeo({
-    title: 'Contact A3 Car Rentals — Kaliakkavilai',
-    description: 'Contact A3 Car Rentals at our hub near Jayamatha Hospital, Opp. Ration Shop, Kaliakkavilai - 629153. Call or WhatsApp +91 96291 82095. Open Mon-Sun 8AM to 10PM.',
+    title: 'Best Car Rental Service in Kaliakkavilai & Anywhere in India — Contact A3 Car rental',
+    description: 'Contact A3 Car rental at our main hub near Jayamatha Hospital, Opp. Ration Shop, Kaliakkavillai, Panamkalai - 629153. Call or WhatsApp +91 96291 82095. Open 24 Hours every day.',
     canonical: 'https://a3carrentals.in/contact',
-    keywords: ['contact A3 Car Rentals', 'car rental contact Kaliakkavilai', 'book car Marthandam phone number', 'A3 car rental WhatsApp', 'car rental enquiry Kaliakkavilai']
+    keywords: [
+      'contact A3 Car rental',
+      'best car rental service in Kaliakkavilai',
+      'car rental anywhere in India',
+      'car rental contact Kaliakkavilai',
+      'book car Marthandam phone number',
+      'A3 car rental WhatsApp',
+      'car rental near Jayamatha Hospital'
+    ]
   });
   const { settings } = useSettings();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -41,7 +49,7 @@ export default function Contact() {
     e.preventDefault();
     if (!validate()) return;
 
-    const brand = settings?.businessName || 'CarBook';
+    const brand = settings?.businessName || 'A3 Car rental';
     const msg = `Hi ${brand}! My name is ${form.name}.
 
 Subject: ${form.subject}
@@ -78,37 +86,36 @@ Please get back to me at your earliest convenience!`;
               <span className="subheading">Get In Touch</span>
               <h2>We'd Love To Hear From You</h2>
               <p>
-                If you have any questions about car rentals, vehicle reservations, or fleet availability, 
-                feel free to reach out. We respond within 2 minutes on WhatsApp!
+                Have questions about self-drive rentals, acting drivers, vehicle availability, or doorstep delivery across Kaliakkavilai or anywhere in India? We respond within 2 minutes on WhatsApp!
               </p>
 
               <div className="contact-details">
                 <div className="contact-item">
                   <div className="contact-icon"><FiMapPin /></div>
                   <div>
-                    <h4>Address</h4>
-                    <p>{settings.hubAddress || 'Connaught Place, New Delhi & Indiranagar, Bengaluru, India'}</p>
+                    <h4>Main Hub Address</h4>
+                    <p>{settings.hubAddress || 'Near by Jayamatha Hospital, Opp. Ration Shop, Kaliakkavillai, Panamkalai - 629153'}</p>
                   </div>
                 </div>
                 <div className="contact-item">
                   <div className="contact-icon"><FiPhone /></div>
                   <div>
-                    <h4>Phone</h4>
+                    <h4>Phone &amp; Direct Call</h4>
                     <p>{settings.supportPhone || (settings.whatsappNumber ? `+${settings.whatsappNumber}` : '+91 96291 82095')}</p>
                   </div>
                 </div>
                 <div className="contact-item">
                   <div className="contact-icon"><FiMail /></div>
                   <div>
-                    <h4>Email</h4>
+                    <h4>Email Support</h4>
                     <p>{settings.supportEmail || 'Shajanshaji111@gmail.com'}</p>
                   </div>
                 </div>
                 <div className="contact-item">
                   <div className="contact-icon"><FiClock /></div>
                   <div>
-                    <h4>Working Hours</h4>
-                    <p>{settings.operatingHours || 'Mon – Sat: 9:00 AM – 8:00 PM'}</p>
+                    <h4>Operating Hours</h4>
+                    <p>{settings.operatingHours || 'Open 24 Hours • 7 Days a Week (24/7 Service)'}</p>
                   </div>
                 </div>
               </div>

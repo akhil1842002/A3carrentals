@@ -1404,9 +1404,15 @@ img {
   border: none;
   outline: none;
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: 16px; /* 16px prevents iOS/Android auto-zoom on focus */
   background: transparent;
   color: var(--dark);
+}
+
+@media screen and (max-width: 768px) {
+  input, select, textarea, .auth-input-wrapper input {
+    font-size: 16px !important;
+  }
 }
 
 .auth-input-wrapper input::placeholder {
@@ -2422,14 +2428,16 @@ img {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 99999;
   padding: 20px;
   animation: fadeIn 0.2s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fadeIn {
@@ -2450,10 +2458,12 @@ img {
   overflow: hidden;
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  max-height: 95vh;
+  max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   position: relative;
+  margin: auto;
 }
 
 @keyframes slideUp {
@@ -2493,8 +2503,9 @@ img {
 }
 
 .modal-car-preview {
-  height: 190px;
-  min-height: 190px;
+  height: 180px;
+  min-height: 180px;
+  background-color: #0f172a;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -2531,8 +2542,10 @@ img {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  flex: 1;
-  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
   /* Internal scrolling only - doesn't clip modal curves! */
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
@@ -7178,11 +7191,47 @@ img {
     gap: 14px;
   }
 
+  .modal-backdrop {
+    padding: 8px !important;
+  }
+
   .booking-modal {
-    width: calc(100% - 20px) !important;
-    max-height: 94vh !important;
-    border-radius: 14px !important;
-    margin: 10px !important;
+    width: 100% !important;
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 16px !important;
+    margin: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .modal-car-preview {
+    height: 120px !important;
+    min-height: 120px !important;
+    background-color: #0f172a !important;
+  }
+
+  .modal-car-overlay {
+    padding: 12px 16px !important;
+  }
+
+  .modal-car-overlay h2 {
+    font-size: 18px !important;
+    margin: 2px 0 0 !important;
+  }
+
+  .modal-car-overlay span {
+    font-size: 14px !important;
+  }
+
+  .modal-form {
+    padding: 14px 14px 20px !important;
+    gap: 12px !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 }
 

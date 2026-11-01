@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiCheck, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { 
-  FaCar, FaAward, FaShieldAlt, FaHeadset, FaUserCheck, FaStar, 
+import {
+  FaCar, FaAward, FaShieldAlt, FaHeadset, FaUserCheck, FaStar,
   FaQuoteLeft, FaCheckCircle, FaGift, FaGoogle,
   FaUserTie, FaPhoneAlt,
   FaChevronDown, FaChevronUp, FaMapMarkerAlt,
@@ -44,10 +44,22 @@ const DEFAULT_FAQS = [
 
 export default function Home() {
   useSeo({
-    title: 'Best Car Rental Service in Kaliakkavilai & Marthandam',
-    description: 'A3 Car Rentals — Top-rated car rental & self-drive service in Kaliakkavilai, Marthandam, Parasala & Trivandrum. Book verified cars online from ₹1,200/day. Instant confirmation!',
+    title: 'Best Car Rental Service in Kaliakkavilai, Marthandam & Anywhere in India',
+    description: 'A3 Car rental — Top-rated 4.8★ car rental & acting driver agency in Kaliakkavilai, Marthandam, Kanyakumari & Anywhere in India. Rent Innova Crysta, Fortuner, Thar, Swift Dzire & sedans. Open 24/7. Zero hidden fees.',
     canonical: 'https://a3carrentals.in/',
-    keywords: ['car rental Kaliakkavilai', 'self drive cars Marthandam', 'car booking Parasala', 'acting driver Kanyakumari', 'car hire Trivandrum', 'A3 Car Rental']
+    keywords: [
+      'best car rental service in Kaliakkavilai',
+      'car rental anywhere in India',
+      'A3 Car rental',
+      'self drive cars Kaliakkavilai',
+      'self drive cars Marthandam',
+      'acting driver Kanyakumari',
+      'car booking near Jayamatha Hospital',
+      'Trivandrum airport car rental',
+      '7 seater Innova rental Kaliakkavilai',
+      'car rental Parasala',
+      'car hire Kuzhithurai'
+    ]
   });
   const { isAuthenticated } = useAuth();
   const { settings } = useSettings();
@@ -133,7 +145,20 @@ export default function Home() {
 
   const filteredCars = selectedCategory === 'All'
     ? carsList
-    : carsList.filter(c => (c.vehicleType || '').toLowerCase() === selectedCategory.toLowerCase());
+    : carsList.filter(c => {
+      const type = (c.vehicleType || '').toLowerCase();
+      const sel = selectedCategory.toLowerCase();
+      if (sel === 'suv' || sel === '7-9 seater fleet' || sel === 'suvs & family muvs') {
+        return type.includes('suv') || type.includes('muv') || (c.seats && c.seats >= 7);
+      }
+      if (sel === 'sedan' || sel === '5 seater comfort' || sel === 'sedans & compacts') {
+        return type.includes('sedan') || type.includes('hatchback') || (c.seats && c.seats <= 5);
+      }
+      if (sel === 'luxury' || sel === 'vip & ceremony' || sel === 'luxury & wedding fleet') {
+        return type.includes('luxury') || (c.brand && ['audi', 'bmw', 'mercedes-benz', 'mercedes'].some(b => c.brand.toLowerCase().includes(b)));
+      }
+      return type.includes(sel);
+    });
 
   const brandName = settings?.businessName || 'A3 Car rental';
   const phoneDisplay = settings?.supportPhone || '+91 96291 82095';
@@ -142,9 +167,9 @@ export default function Home() {
   return (
     <div className="home-page">
       {/* 2. HERO BANNER */}
-      <section 
-        className="hero" 
-        style={{ 
+      <section
+        className="hero"
+        style={{
           backgroundImage: `url('${lp.heroBgImage || '/images/bg_1.jpg'}')`,
           padding: '110px 0 100px',
           minHeight: '78vh',
@@ -156,27 +181,31 @@ export default function Home() {
       >
         <div className="hero-overlay"></div>
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div className="hero-content" style={{ textAlign: 'center', maxWidth: '840px', margin: '0 auto' }}>
-            <span style={{ 
-              display: 'inline-block', 
-              padding: '6px 18px', 
-              background: 'rgba(249, 109, 0, 0.25)', 
-              color: '#ff9838', 
-              borderRadius: '30px', 
-              fontSize: '13px', 
-              fontWeight: 800, 
-              letterSpacing: '0.08em', 
-              textTransform: 'uppercase', 
-              marginBottom: '18px',
-              border: '1px solid rgba(249, 109, 0, 0.4)'
-            }}>
-              {lp.heroBadge || '🚗 Self-Drive & Chauffeur Car Rentals in Kaliakkavilai'}
-            </span>
-            <h1 style={{ fontSize: 'clamp(32px, 5.5vw, 56px)', fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: '0 0 18px' }}>
-              {lp.heroTitle || 'Best Car Rental Service in Kaliakkavilai & Marthandam'}
+          <div className="hero-content" style={{ textAlign: 'center', maxWidth: '860px', margin: '0 auto' }}>
+
+            <div>
+              <span style={{
+                display: 'inline-block',
+                padding: '6px 18px',
+                background: 'rgba(249, 109, 0, 0.28)',
+                color: '#ff9838',
+                borderRadius: '30px',
+                fontSize: '13px',
+                fontWeight: 800,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '16px',
+                border: '1px solid rgba(249, 109, 0, 0.45)'
+              }}>
+                {lp.heroBadge || '🚗 Best Self-Drive & Acting Driver Car Rentals in Kaliakkavilai & Anywhere in India'}
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: 'clamp(30px, 5.2vw, 54px)', fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: '0 0 16px' }}>
+              {lp.heroTitle || 'Best Car Rental Service in Kaliakkavilai, Marthandam & Anywhere in India'}
             </h1>
-            <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: '#e2e8f0', lineHeight: 1.6, margin: '0 auto 32px', maxWidth: '720px' }}>
-              {lp.heroSubtitle || 'A3 Car Rentals provides verified luxury sedans, SUVs, and budget cars for Self-Drive or with Acting Drivers across Kaliakkavilai, Marthandam, Parasala, Kuzhithurai & Trivandrum. Instant online booking & doorstep delivery.'}
+            <p style={{ fontSize: 'clamp(14px, 1.8vw, 17px)', color: '#e2e8f0', lineHeight: 1.6, margin: '0 auto 30px', maxWidth: '760px' }}>
+              {lp.heroSubtitle || 'Fast & Easy Way To Rent A Car. Explore our curated fleet of luxury sedans, 7-9 seater SUVs (Innova Crysta, Fortuner, Thar), and budget family cars. Available for Self-Drive or with experienced Acting Drivers. Doorstep handover near Jayamatha Hospital, Trivandrum Airport & Anywhere in India.'}
             </p>
 
             {/* Instant Sign Up & Action CTAs */}
@@ -260,7 +289,7 @@ export default function Home() {
       {offer?.enabled && (
         <section className="section cb-event-offer-section" style={{ padding: '36px 0 10px' }}>
           <div className="container">
-            <div 
+            <div
               style={{
                 position: 'relative',
                 borderRadius: '20px',
@@ -390,7 +419,7 @@ export default function Home() {
               </Link>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 310px), 380px))', justifyContent: 'center', gap: '24px', margin: '0 auto' }}>
               {filteredCars.map((car, idx) => {
                 const carImg = car.images?.[0] || `/images/car-${(idx % 6) + 1}.jpg`;
                 const brand = car.brand || 'Premium';
@@ -431,22 +460,24 @@ export default function Home() {
                     {/* Body Content */}
                     <div style={{ padding: '18px 20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div>
-                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#f96d00', textTransform: 'uppercase', marginBottom: '2px' }}>
-                          {brand}
+                        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#f96d00', textTransform: 'uppercase', marginBottom: '2px' }}>
+                            {brand}
+                          </div>
+                          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                            {name}
+                          </h3>
                         </div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 12px' }}>
-                          {name}
-                        </h3>
 
                         {/* Specs Icons */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '10px 0', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', marginBottom: '14px', fontSize: '12px', color: '#64748b' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                             <FaUsers size={12} color="#f96d00" /> {car.seats || 5} Seats
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                             <FaCogs size={12} color="#f96d00" /> {car.transmission || 'Manual'}
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                             <FaGasPump size={12} color="#f96d00" /> {car.fuelType || 'Diesel'}
                           </div>
                         </div>
@@ -454,12 +485,10 @@ export default function Home() {
 
                       {/* Price and Instant Signup/Book Action */}
                       <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: '6px', marginBottom: '12px' }}>
                           <span style={{ fontSize: '12px', color: '#64748b' }}>Rental Price:</span>
-                          <div>
-                            <strong style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>₹{price}</strong>
-                            <span style={{ fontSize: '12px', color: '#64748b' }}> / day</span>
-                          </div>
+                          <strong style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a' }}>₹{price}</strong>
+                          <span style={{ fontSize: '12px', color: '#64748b' }}>/ day</span>
                         </div>
 
                         {/* Single Instant Action CTA */}
@@ -756,8 +785,8 @@ export default function Home() {
       <section className="section" style={{ padding: '80px 0' }}>
         <div className="container">
           <div className="about-wrapper">
-            <div 
-              className="about-image" 
+            <div
+              className="about-image"
               style={{ backgroundImage: `url('${lp.aboutImage || '/images/about.jpg'}')` }}
             >
               <div className="about-badge">
@@ -770,16 +799,16 @@ export default function Home() {
                 About {brandName}
               </span>
               <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 36px)', fontWeight: 900, color: '#0f172a', margin: '6px 0 16px' }}>
-                {lp.aboutTitle || 'Your Premium Mobility Partner'}
+                {lp.aboutTitle || 'Your Trusted Mobility Partner in Kaliakkavilai & Anywhere in India'}
               </h2>
               <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.6, marginBottom: '20px' }}>
-                {lp.aboutDesc || 'We provide premium car rentals for all your driving requirements. Whether you need a self-drive SUV for a holiday or wish to rent any car with an experienced acting driver — CarBook has you covered.'}
+                {lp.aboutDesc || 'We provide premium car rentals for all your driving requirements. Whether you need a 7-seater Innova Crysta for a family trip, a rugged SUV for an expedition, or a comfortable sedan for your daily commute — A3 Car rental has you covered with Self-Drive and verified Acting Driver options across Kaliakkavilai and anywhere in India.'}
               </p>
 
               {/* Highlights */}
               <ul className="about-list" style={{ marginBottom: '24px' }}>
                 <li><FiCheck /> {lp.aboutFeature1 || 'Rent for self-drive or with a verified professional acting driver'}</li>
-                <li><FiCheck /> {lp.aboutFeature2 || 'Over 50+ premium vehicles across sports, luxury, and SUV categories'}</li>
+                <li><FiCheck /> {lp.aboutFeature2 || 'Over 50+ premium vehicles across 5-seater sedans, 7-9 seater SUVs, and luxury fleet'}</li>
                 <li><FiCheck /> {lp.aboutFeature3 || 'Easy online & WhatsApp booking with real-time availability'}</li>
                 <li><FiCheck /> {lp.aboutFeature4 || 'Transparent pricing with zero hidden security deposit deductions'}</li>
               </ul>
@@ -792,7 +821,8 @@ export default function Home() {
                 </div>
                 <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
                   📍 <strong>Main Hub:</strong> {lp.mainHubAddress || 'Opp. Ration Shop, Near Jayamatha Hospital, Kaliakkavillai, Panamkalai - 629153'}<br />
-                  🚚 <strong>Delivery Coverage:</strong> {lp.deliveryCoverage || 'Marthandam • Nagercoil • Kanyakumari • Trivandrum (TRV) Airport • Kuzhithurai'}
+                  🚚 <strong>Delivery Coverage:</strong> {lp.deliveryCoverage || 'Kaliakkavilai • Marthandam • Kuzhithurai • Parasala • Nagercoil • Kanyakumari • Trivandrum (TRV) Airport • Doorstep Anywhere in India'}<br />
+                  ⏰ <strong>Operating Hours:</strong> Open 24 Hours • 7 Days a Week (24/7 Roadside Assistance)
                 </div>
               </div>
 
@@ -833,7 +863,7 @@ export default function Home() {
               <p>No customer reviews featured on the homepage yet.</p>
             </div>
           ) : (
-            <div 
+            <div
               className="testimonials-carousel-container"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
@@ -868,15 +898,15 @@ export default function Home() {
                     {/* Top row */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div 
-                          style={{ 
-                            width: '40px', 
-                            height: '40px', 
-                            borderRadius: '10px', 
-                            background: isGoogle ? '#fef2f2' : '#fff7ed', 
-                            color: isGoogle ? '#ea4335' : '#f96d00', 
-                            display: 'flex', 
-                            alignItems: 'center', 
+                        <div
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '10px',
+                            background: isGoogle ? '#fef2f2' : '#fff7ed',
+                            color: isGoogle ? '#ea4335' : '#f96d00',
+                            display: 'flex',
+                            alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: '18px'
                           }}
@@ -1108,8 +1138,8 @@ export default function Home() {
       </section>
 
       {/* 10. PRE-FOOTER CONTACT & CTA BANNER */}
-      <section 
-        className="cta-section" 
+      <section
+        className="cta-section"
         style={{ backgroundImage: `url('${lp.ctaBgImage || '/images/bg_3.jpg'}')`, padding: '80px 0' }}
       >
         <div className="hero-overlay"></div>

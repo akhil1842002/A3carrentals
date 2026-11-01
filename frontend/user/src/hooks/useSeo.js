@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 export default function useSeo({ title, description, canonical, keywords = [] }) {
   useEffect(() => {
     // ── Title ────────────────────────────────────────────────────────────
-    const BRAND = 'A3 Car Rentals | Kaliakkavilai';
+    const BRAND = 'A3 Car rental | Best Service in Kaliakkavilai & Anywhere in India';
     document.title = title ? `${title} — ${BRAND}` : BRAND;
 
     // ── Helper: upsert a <meta> tag ───────────────────────────────────────
@@ -41,7 +41,7 @@ export default function useSeo({ title, description, canonical, keywords = [] })
     setMeta({ name: 'twitter:title' }, document.title);
 
     // ── Keywords (append page-specific to global) ─────────────────────────
-    const base = 'car rental Kaliakkavilai, self drive cars Marthandam, A3 Car Rentals, car hire Kanyakumari';
+    const base = 'best car rental service in Kaliakkavilai, car rental anywhere in India, A3 Car rental, self drive cars Kaliakkavilai, self drive cars Marthandam, car booking near Jayamatha Hospital, acting driver Kanyakumari, Trivandrum airport car rental';
     let keywordList = [];
     if (Array.isArray(keywords)) {
       keywordList = keywords.filter(Boolean);

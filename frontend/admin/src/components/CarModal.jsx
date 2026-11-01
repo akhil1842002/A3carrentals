@@ -69,6 +69,10 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
 
   useEffect(() => {
     loadMasterOptions();
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   const loadMasterOptions = async () => {
@@ -342,14 +346,23 @@ export default function CarModal({ isOpen, onClose, onSave, carToEdit }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999
+      }}
+    >
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
           maxWidth: '960px',
           width: '100%',
-          maxHeight: '90vh',
+          maxHeight: 'calc(100dvh - 24px)',
           borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',

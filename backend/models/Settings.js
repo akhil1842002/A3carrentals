@@ -14,7 +14,7 @@ const settingsSchema = new mongoose.Schema({
   supportEmail: { type: String, default: 'Shajanshaji111@gmail.com' },
   supportPhone: { type: String, default: '+91 96291 82095' },
   whatsappNumber: { type: String, default: '919629182095' },
-  operatingHours: { type: String, default: 'Mon - Sun: 8:00 AM - 10:00 PM' },
+  operatingHours: { type: String, default: 'Open 24 Hours • 7 Days a Week (24/7 Service)' },
   hubAddress: { type: String, default: 'Near by Jayamatha Hospital, Opp. Ration Shop, Kaliakkavillai, Panamkalai - 629153' },
   googleMapsEmbedUrl: { type: String, default: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15791.058512382906!2d77.15638885576467!3d8.326171267354821!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b05ab2e7848b5e1%3A0xbe02000328d9065!2sA3%20Car%20rental!5e0!3m2!1sen!2sin!4v1793281171962!5m2!1sen!2sin' },
 
@@ -92,12 +92,12 @@ const settingsSchema = new mongoose.Schema({
 
     aboutBadgeYears: { type: String, default: '10+' },
     aboutBadgeText: { type: String, default: 'Years of Excellence' },
-    aboutTitle: { type: String, default: 'Your Premium Mobility Partner' },
-    aboutDesc: { type: String, default: 'We provide premium car rentals for all your driving requirements. Whether you need a sleek sports car for the weekend, a rugged SUV for an expedition, or a comfortable sedan for your daily commute — CarBook has you covered.' },
+    aboutTitle: { type: String, default: 'Your Trusted Mobility Partner in Kaliakkavilai & Anywhere in India' },
+    aboutDesc: { type: String, default: 'We provide premium car rentals for all your driving requirements across Kaliakkavilai, Kanyakumari, and anywhere in India. Whether you need a 7-seater Innova Crysta for a family trip, a comfortable Swift Dzire for daily commute, or an acting driver for outstation highways — A3 Car rental has you covered.' },
     aboutFeature1: { type: String, default: '24/7 dedicated customer assistance & roadside support' },
     aboutFeature2: { type: String, default: 'Over 50+ premium vehicles across sports, luxury, and SUV categories' },
     aboutFeature3: { type: String, default: 'Easy online booking with real-time availability' },
-    aboutFeature4: { type: String, default: 'Transparent pricing with no hidden charges' },
+    aboutFeature4: { type: String, default: 'Transparent pricing with zero hidden charges' },
     aboutImage: { type: String, default: '/images/about.jpg' },
 
     // Company Location & Interactive Map Pin
