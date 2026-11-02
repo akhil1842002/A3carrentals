@@ -20,12 +20,12 @@ const settingsSchema = new mongoose.Schema({
 
   // Social Media Channels
   socialLinks: {
-    instagram: { type: String, default: 'https://www.instagram.com/cabs_and_tyres?obrf=aHU4cnNnejljcGM5' },
+    instagram: { type: String, default: 'https://www.instagram.com/cabs_and_tyres/' },
     facebook: { type: String, default: '' },
     twitter: { type: String, default: '' },
     youtube: { type: String, default: '' }
   },
-  instagramUrl: { type: String, default: 'https://www.instagram.com/cabs_and_tyres?obrf=aHU4cnNnejljcGM5' },
+  instagramUrl: { type: String, default: 'https://www.instagram.com/cabs_and_tyres/' },
   facebookUrl: { type: String, default: '' },
   twitterUrl: { type: String, default: '' },
   youtubeUrl: { type: String, default: '' },
@@ -107,7 +107,7 @@ const settingsSchema = new mongoose.Schema({
     companyLocationNotes: { type: String, default: 'Near by Jayamatha Hospital, Landmark: Opposite Ration Shop' },
 
     // Social Media Links in Landing Page
-    instagramUrl: { type: String, default: 'https://www.instagram.com/cabs_and_tyres?obrf=aHU4cnNnejljcGM5' },
+    instagramUrl: { type: String, default: 'https://www.instagram.com/cabs_and_tyres/' },
     facebookUrl: { type: String, default: '' },
     twitterUrl: { type: String, default: '' },
     youtubeUrl: { type: String, default: '' },

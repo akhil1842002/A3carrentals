@@ -14,9 +14,9 @@ export default function useSeo({ title, description, canonical, keywords = [] })
     // ── Title ────────────────────────────────────────────────────────────
     const BRAND = 'A3 Car rental';
     if (title) {
-      document.title = title.includes('A3 Car rental') ? title : `${title} | ${BRAND}`;
+      document.title = (title.includes('A3') || title.includes('Car rental')) ? title : `${title} | ${BRAND}`;
     } else {
-      document.title = 'Best Car Rentals Near Me in Kaliakkavilai, Marthandam, Kuzhithurai & Parasala | A3 Car rental';
+      document.title = 'Best Car Rentals in Kaliakkavilai & Marthandam | A3';
     }
 
     // ── Helper: upsert a <meta> tag ───────────────────────────────────────

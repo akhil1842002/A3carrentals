@@ -86,7 +86,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4>Quick Links</h4>
+            <h3>Quick Links</h3>
             <ul className="footer-links">
               <li><Link to="/">Home</Link></li>
               <li><Link to="/about">About Us</Link></li>
@@ -96,7 +96,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4>Have Questions?</h4>
+            <h3>Have Questions?</h3>
             <ul className="footer-links footer-contact">
               <li><FiMapPin /><span>{hubDisplay}</span></li>
               <li><FiPhone /><span>{phoneDisplay}</span></li>

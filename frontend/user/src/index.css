@@ -774,9 +774,11 @@ img {
   background: var(--primary);
 }
 
-.footer h4 {
+.footer h4,
+.footer h3 {
   color: var(--white);
   font-size: 16px;
+  font-weight: 700;
   margin-bottom: 20px;
 }
 
