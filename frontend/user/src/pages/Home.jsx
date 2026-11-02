@@ -824,7 +824,7 @@ export default function Home() {
               </ul>
 
               {/* Service Locations Box */}
-              <div style={{ background: '#f8fafc', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
+              {/* <div style={{ background: '#f8fafc', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                   <FaMapMarkerAlt color="#f96d00" />
                   <strong style={{ fontSize: '14px', color: '#0f172a' }}>Doorstep Delivery Anywhere in India &amp; Express Local Hubs:</strong>
@@ -845,9 +845,8 @@ export default function Home() {
                 <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.65 }}>
                   🇮🇳 <strong>Nationwide &amp; Monthly Rentals:</strong> Daily, weekly, or monthly self-drive &amp; acting driver cars delivered <strong>Anywhere in India</strong> to your doorstep, airport, or hotel.<br />
                   📍 <strong>Main Hub:</strong> {lp.mainHubAddress || 'Opp. Ration Shop, Near Jayamatha Hospital, Kaliakkavillai, Panamkalai - 629153'}<br />
-                  ⚡ <strong>Fast Doorstep Handover (20–30 Mins):</strong> Quick vehicle drop across nearby locations including Kaliakkavilai, Panamkalai, Marthandam, Kuzhithurai, Parasala, Nagercoil &amp; Trivandrum Airport.
                 </div>
-              </div>
+              </div> */}
 
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <Link to="/about" className="btn btn-primary" style={{ padding: '12px 24px', fontSize: '13px', fontWeight: 700, borderRadius: '8px' }}>
