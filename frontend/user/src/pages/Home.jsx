@@ -32,13 +32,18 @@ const DEFAULT_FAQS = [
   },
   {
     id: 'faq-4',
-    question: 'Where can I pick up the car or meet the driver?',
-    answer: 'You can pick up vehicles directly from our main hub at Kaliakkavillai (near Jayamatha Hospital, opposite Ration Shop) or request doorstep delivery across Marthandam, Nagercoil, and Trivandrum.'
+    question: 'Where can I get the car delivered or pick it up?',
+    answer: 'We provide doorstep car delivery anywhere in India, including monthly and outstation rentals! You can also pick up directly from our main hub at Kaliakkavillai (near Jayamatha Hospital, opposite Ration Shop) or request fast 20–30 min delivery across Kaliakkavilai, Marthandam, Kuzhithurai, Parasala, Nagercoil, and Trivandrum Airport.'
   },
   {
     id: 'faq-5',
     question: 'Are your vehicles permitted for outstation and interstate travel?',
-    answer: 'Yes! All vehicles have valid commercial tourist permits, comprehensive insurance, and interstate authorization for smooth travel across Tamil Nadu, Kerala, and all of South India.'
+    answer: 'Yes! All vehicles have valid commercial tourist permits, comprehensive insurance, and interstate authorization for smooth travel across Tamil Nadu, Kerala, and all of India.'
+  },
+  {
+    id: 'faq-6',
+    question: 'Do you offer monthly car rentals and delivery anywhere in India?',
+    answer: 'Yes! A3 Car Rentals offers affordable daily, weekly, and monthly long-term car rentals with doorstep delivery anywhere in India for personal, NRI, and corporate requirements.'
   }
 ];
 
@@ -822,19 +827,25 @@ export default function Home() {
               <div style={{ background: '#f8fafc', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                   <FaMapMarkerAlt color="#f96d00" />
-                  <strong style={{ fontSize: '13px', color: '#0f172a' }}>Car Rentals Near You &amp; Fast Doorstep Delivery:</strong>
+                  <strong style={{ fontSize: '14px', color: '#0f172a' }}>Doorstep Delivery Anywhere in India &amp; Express Local Hubs:</strong>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
-                  {['Kaliakkavilai', 'Panamkalai', 'Marthandam', 'Kuzhithurai', 'Parasala', 'Nagercoil', 'Trivandrum Airport'].map(loc => (
+                  <span style={{ background: '#f96d00', color: '#ffffff', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    🇮🇳 Doorstep Anywhere in India
+                  </span>
+                  <span style={{ background: '#0f172a', color: '#ffffff', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    📅 Monthly &amp; Long-Term Car Rentals
+                  </span>
+                  {['Kaliakkavilai (Hub)', 'Panamkalai', 'Marthandam', 'Kuzhithurai', 'Parasala', 'Nagercoil', 'Trivandrum Airport'].map(loc => (
                     <span key={loc} style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                       📍 {loc}
                     </span>
                   ))}
                 </div>
-                <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
+                <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.65 }}>
+                  🇮🇳 <strong>Nationwide &amp; Monthly Rentals:</strong> Daily, weekly, or monthly self-drive &amp; acting driver cars delivered <strong>Anywhere in India</strong> to your doorstep, airport, or hotel.<br />
                   📍 <strong>Main Hub:</strong> {lp.mainHubAddress || 'Opp. Ration Shop, Near Jayamatha Hospital, Kaliakkavillai, Panamkalai - 629153'}<br />
-                  🚚 <strong>Delivery Coverage:</strong> {lp.deliveryCoverage || 'Kaliakkavilai • Marthandam • Kuzhithurai • Parasala • Nagercoil • Kanyakumari • Trivandrum (TRV) Airport • Doorstep Anywhere in India'}<br />
-                  ⚡ <strong>Fast Doorstep Drop:</strong> Free / low-cost car delivery to your home, railway station, or hotel in 20–30 mins.
+                  ⚡ <strong>Fast Doorstep Handover (20–30 Mins):</strong> Quick vehicle drop across nearby locations including Kaliakkavilai, Panamkalai, Marthandam, Kuzhithurai, Parasala, Nagercoil &amp; Trivandrum Airport.
                 </div>
               </div>
 
