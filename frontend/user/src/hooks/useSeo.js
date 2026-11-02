@@ -12,8 +12,12 @@ import { useEffect } from 'react';
 export default function useSeo({ title, description, canonical, keywords = [] }) {
   useEffect(() => {
     // ── Title ────────────────────────────────────────────────────────────
-    const BRAND = 'A3 Car rental | Best Service in Kaliakkavilai & Anywhere in India';
-    document.title = title ? `${title} — ${BRAND}` : BRAND;
+    const BRAND = 'A3 Car rental';
+    if (title) {
+      document.title = title.includes('A3 Car rental') ? title : `${title} | ${BRAND}`;
+    } else {
+      document.title = 'Best Car Rentals Near Me in Kaliakkavilai, Marthandam, Kuzhithurai & Parasala | A3 Car rental';
+    }
 
     // ── Helper: upsert a <meta> tag ───────────────────────────────────────
     const setMeta = (attrs, content) => {
@@ -41,7 +45,7 @@ export default function useSeo({ title, description, canonical, keywords = [] })
     setMeta({ name: 'twitter:title' }, document.title);
 
     // ── Keywords (append page-specific to global) ─────────────────────────
-    const base = 'best car rental service in Kaliakkavilai, car rental anywhere in India, A3 Car rental, self drive cars Kaliakkavilai, self drive cars Marthandam, car booking near Jayamatha Hospital, acting driver Kanyakumari, Trivandrum airport car rental';
+    const base = 'car rentals near me, best car rentals near me, best car rentals, car rentals kaliakkavilai, car rentals panamkalai, car rentals marthandam, car rentals kuzhithurai, car rentals parasala, self drive cars kaliakkavilai, self drive car rentals near me, acting driver kaliakkavilai, acting driver marthandam, A3 Car rental';
     let keywordList = [];
     if (Array.isArray(keywords)) {
       keywordList = keywords.filter(Boolean);

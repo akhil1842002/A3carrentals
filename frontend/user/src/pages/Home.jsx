@@ -44,21 +44,25 @@ const DEFAULT_FAQS = [
 
 export default function Home() {
   useSeo({
-    title: 'Best Car Rental Service in Kaliakkavilai, Marthandam & Anywhere in India',
-    description: 'A3 Car rental — Top-rated 4.8★ car rental & acting driver agency in Kaliakkavilai, Marthandam, Kanyakumari & Anywhere in India. Rent Innova Crysta, Fortuner, Thar, Swift Dzire & sedans. Open 24/7. Zero hidden fees.',
-    canonical: 'https://a3carrentals.in/',
+    title: 'Best Car Rentals in Kaliakkavilai & Marthandam | A3',
+    description: 'Top self-drive car rentals & acting drivers in Kaliakkavilai, Marthandam & Parasala. Innova Crysta, Thar & Swift from ₹1,200/day. 24/7 doorstep delivery.',
+    canonical: 'https://www.a3carrentals.in/',
     keywords: [
-      'best car rental service in Kaliakkavilai',
-      'car rental anywhere in India',
-      'A3 Car rental',
+      'car rentals near me',
+      'best car rentals near me',
+      'best car rentals',
+      'car rentals kaliakkavilai',
+      'car rentals panamkalai',
+      'car rentals marthandam',
+      'car rentals kuzhithurai',
+      'car rentals parasala',
       'self drive cars Kaliakkavilai',
       'self drive cars Marthandam',
       'acting driver Kanyakumari',
+      'acting driver Kaliakkavilai',
       'car booking near Jayamatha Hospital',
       'Trivandrum airport car rental',
-      '7 seater Innova rental Kaliakkavilai',
-      'car rental Parasala',
-      'car hire Kuzhithurai'
+      '7 seater Innova rental Kaliakkavilai'
     ]
   });
   const { isAuthenticated } = useAuth();
@@ -66,6 +70,7 @@ export default function Home() {
   const lp = settings?.landingPage || {};
   const offer = settings?.eventOffer;
   const [codeCopied, setCodeCopied] = useState(false);
+
 
   // Actual Fleet Cars State & Category Filter
   const [carsList, setCarsList] = useState([]);
@@ -814,15 +819,22 @@ export default function Home() {
               </ul>
 
               {/* Service Locations Box */}
-              <div style={{ background: '#f8fafc', padding: '16px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ background: '#f8fafc', padding: '18px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                   <FaMapMarkerAlt color="#f96d00" />
-                  <strong style={{ fontSize: '13px', color: '#0f172a' }}>Our Hub &amp; Service Locations:</strong>
+                  <strong style={{ fontSize: '13px', color: '#0f172a' }}>Car Rentals Near You &amp; Fast Doorstep Delivery:</strong>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                  {['Kaliakkavilai', 'Panamkalai', 'Marthandam', 'Kuzhithurai', 'Parasala', 'Nagercoil', 'Trivandrum Airport'].map(loc => (
+                    <span key={loc} style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      📍 {loc}
+                    </span>
+                  ))}
                 </div>
                 <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
                   📍 <strong>Main Hub:</strong> {lp.mainHubAddress || 'Opp. Ration Shop, Near Jayamatha Hospital, Kaliakkavillai, Panamkalai - 629153'}<br />
                   🚚 <strong>Delivery Coverage:</strong> {lp.deliveryCoverage || 'Kaliakkavilai • Marthandam • Kuzhithurai • Parasala • Nagercoil • Kanyakumari • Trivandrum (TRV) Airport • Doorstep Anywhere in India'}<br />
-                  ⏰ <strong>Operating Hours:</strong> Open 24 Hours • 7 Days a Week (24/7 Roadside Assistance)
+                  ⚡ <strong>Fast Doorstep Drop:</strong> Free / low-cost car delivery to your home, railway station, or hotel in 20–30 mins.
                 </div>
               </div>
 

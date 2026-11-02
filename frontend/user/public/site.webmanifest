@@ -1,0 +1,20 @@
+{
+  "name": "A3 Car rental",
+  "short_name": "A3 Rentals",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#f96d00",
+  "background_color": "#0f172a",
+  "display": "standalone",
+  "start_url": "/"
+}
